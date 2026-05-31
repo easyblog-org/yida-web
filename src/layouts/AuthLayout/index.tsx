@@ -67,7 +67,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
                 alt="智搭 Logo"
                 className="h-20 w-20"
               />
-              <h1 className="m-0 text-[40px] font-semibold tracking-tight text-slate-950">智搭</h1>
+              <h1 className="m-0 text-[40px] font-semibold tracking-tight text-slate-950">Yida 易搭</h1>
             </Flex>
             <p className="mb-0 mt-3 text-sm leading-6 text-slate-500 sm:text-[15px]">
               统一认证入口

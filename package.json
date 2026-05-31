@@ -1,6 +1,6 @@
 {
   "name": "zhida",
-  "description": "智搭低代码应用生成系统前端",
+  "description": "Yida 易搭低代码应用生成系统前端",
   "private": true,
   "version": "0.0.0",
   "type": "module",

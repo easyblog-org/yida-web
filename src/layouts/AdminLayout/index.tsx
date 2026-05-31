@@ -280,7 +280,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             >
               <Text className="text-sm text-slate-400">
                 © {new Date().getFullYear()}{' '}
-                <Text className="font-medium text-slate-600">智搭低代码应用生成系统</Text>
+                <Text className="font-medium text-slate-600">Yida 易搭低代码应用生成系统</Text>
               </Text>
               <Text className="text-sm text-slate-300">·</Text>
               <Text className="text-sm text-slate-400">

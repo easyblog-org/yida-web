@@ -190,7 +190,7 @@ export default function BasicLayout({ children }: { children: ReactNode }) {
         <div className="text-center">
           <p className="m-0 text-sm text-slate-500">
             © {new Date().getFullYear()}{' '}
-            <span className="font-medium text-slate-600">智搭低代码应用生成系统</span>. Designed by{' '}
+            <span className="font-medium text-slate-600">Yida 易搭低代码应用生成系统</span>. Designed by{' '}
             <a
               href="https://github.com/ymz6"
               target="_blank"

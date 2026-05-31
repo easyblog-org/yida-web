@@ -276,7 +276,7 @@ export function AppWorkbenchHeader({ app }: { app?: AppVO }) {
         >
           <img
             src={zhidaLogo}
-            alt="智搭 Logo"
+            alt="Yida 易搭 Logo"
             className="h-full! w-full! max-w-full! object-contain"
           />
         </Link>
