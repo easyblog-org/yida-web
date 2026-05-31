@@ -108,27 +108,27 @@ export function AppConversationComposer({
   }
 
   return (
-    <div className="relative shrink-0 bg-white px-4 pt-3 pb-4">
-      <div className="pointer-events-none absolute inset-x-0 -top-5 h-5 bg-linear-to-b from-white/0 to-white" />
+    <div className="relative shrink-0 bg-gradient-to-b from-white via-white to-slate-50/50 px-4 pt-3 pb-4 shadow-[0_-4px_24px_rgba(0,0,0,0.03)]">
+      <div className="pointer-events-none absolute inset-x-0 -top-5 h-5 bg-gradient-to-b from-white/0 via-white/80 to-white" />
       {isVisualEditMode && (
-        <div className="relative z-10 mb-2 flex min-h-11 min-w-0 items-center gap-2.5 rounded-2xl border border-slate-200/70 bg-slate-50/95 px-4 py-2 text-sm text-slate-600 shadow-sm shadow-slate-950/8">
+        <div className="relative z-10 mb-2.5 flex min-h-11 min-w-0 items-center gap-2.5 rounded-2xl border border-indigo-200/60 bg-gradient-to-r from-indigo-50/80 to-purple-50/60 px-4 py-2 text-sm text-indigo-700 shadow-sm shadow-indigo-500/5 backdrop-blur-sm">
           <Crosshair
-            className="size-4 shrink-0 text-indigo-500/80"
+            className="size-4 shrink-0 text-indigo-500"
             aria-hidden="true"
           />
           {selectedVisualEditElement && selectedVisualEditSourceLocation ? (
             <>
-              <span className="shrink-0 text-slate-600">已选中元素</span>
-              <span className="shrink-0 rounded-md border border-slate-200 bg-white px-2 py-1 font-mono text-xs leading-4 text-slate-700">
+              <span className="shrink-0 font-medium text-indigo-600">已选中元素</span>
+              <span className="shrink-0 rounded-md border border-indigo-200/60 bg-white/90 px-2 py-1 font-mono text-xs leading-4 text-indigo-700 shadow-sm">
                 {`<${selectedVisualEditElement.tag}>`}
               </span>
-              <span className="ml-auto min-w-0 truncate font-mono text-sm text-slate-500">
+              <span className="ml-auto min-w-0 truncate font-mono text-sm text-indigo-500/70">
                 {selectedVisualEditSourceLocation.filePath}
                 {selectedVisualEditLineText}
               </span>
             </>
           ) : (
-            <span className="min-w-0 truncate text-slate-600">等待选择预览元素</span>
+            <span className="min-w-0 truncate text-indigo-600/80">等待选择预览元素</span>
           )}
         </div>
       )}
@@ -146,12 +146,12 @@ export function AppConversationComposer({
               : '先在右侧预览选择元素，再描述修改需求'
             : '描述想生成或调整的地方，可以一步一步完善生成效果'
         }
-        className="relative z-10 rounded-3xl! border-0! bg-slate-100! px-3! pt-3! pb-2! shadow-none!"
+        className="relative z-10 rounded-[20px]! border border-slate-200/80 bg-gradient-to-b from-white to-slate-50/30 px-4 pt-3.5 pb-3 shadow-[0_2px_12px_rgba(99,102,241,0.06),inset_0_1px_2px_rgba(255,255,255,0.8)] transition-all duration-300 hover:border-indigo-200/60 hover:shadow-[0_4px_16px_rgba(99,102,241,0.1),inset_0_1px_2px_rgba(255,255,255,0.9)] focus-within:border-indigo-300/80 focus-within:shadow-[0_4px_20px_rgba(99,102,241,0.15),0_0_0_3px_rgba(99,102,241,0.08)]"
         classNames={{
           content: 'items-start!',
           input:
-            'min-h-10! bg-transparent! px-1! py-0! text-base! leading-7! text-slate-800! placeholder:text-slate-400!',
-          footer: 'mt-2!',
+            'min-h-10! bg-transparent! px-1! py-0! text-[15px]! leading-[1.75]! text-slate-800! placeholder:text-slate-400! placeholder:font-light!',
+          footer: 'mt-2.5!',
         }}
         suffix={false}
         footer={
@@ -193,11 +193,11 @@ export function AppConversationComposer({
                   aria-label="发送消息"
                   icon={
                     <ArrowUp
-                      className="size-5"
+                      className="size-4"
                       aria-hidden="true"
                     />
                   }
-                  className="size-10! shrink-0! border-0! bg-slate-950! text-white! shadow-sm! shadow-slate-950/20! transition-all hover:bg-slate-800! disabled:bg-slate-300!"
+                  className="size-9! shrink-0! rounded-full! border-0! bg-gradient-to-br from-indigo-500 to-purple-600! text-white! shadow-md shadow-indigo-500/25! transition-all duration-300 hover:-translate-y-0.5 hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/30! active:scale-95 disabled:from-slate-400 disabled:to-slate-400 disabled:shadow-none!"
                 />
               </span>
             </Tooltip>

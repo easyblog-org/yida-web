@@ -239,7 +239,7 @@ export function HomePage() {
           setCreateAppCurrentStep(streamMessage.step)
           setCreateAppStreamMessage(
             streamMessage.message?.trim() ||
-              createAppSteps[createAppStepIndexMap[streamMessage.step]].description,
+            createAppSteps[createAppStepIndexMap[streamMessage.step]].description,
           )
 
           if (streamMessage.step === 'DONE') {
@@ -340,11 +340,14 @@ export function HomePage() {
           </div>
         </div>
       ) : null}
-      {/* Background Blobs */}
-      <div className="pointer-events-none absolute inset-0 -z-10 flex justify-center">
-        <div className="absolute top-0 left-1/4 h-96 w-96 rounded-full bg-sky-400/20 mix-blend-multiply blur-3xl" />
-        <div className="absolute top-20 right-1/4 h-96 w-96 rounded-full bg-blue-400/20 mix-blend-multiply blur-3xl" />
-        <div className="absolute -bottom-32 left-1/3 h-96 w-96 rounded-full bg-cyan-400/20 mix-blend-multiply blur-3xl" />
+      {/* Background - 蓝紫系渐变光晕 */}
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-indigo-50/30" />
+        <div className="absolute -top-40 -left-20 h-[500px] w-[500px] rounded-full bg-indigo-400/15 blur-[120px]" />
+        <div className="absolute -top-20 -right-32 h-[450px] w-[450px] rounded-full bg-purple-400/18 blur-[100px]" />
+        <div className="absolute -bottom-32 left-1/4 h-[400px] w-[400px] rounded-full bg-violet-400/12 blur-[110px]" />
+        <div className="absolute bottom-0 right-1/3 h-[350px] w-[350px] rounded-full bg-blue-400/10 blur-[90px]" />
+        <div className="absolute top-1/2 left-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-fuchsia-300/8 blur-[80px]" />
       </div>
 
       <section className="relative mx-auto flex min-h-124 max-w-5xl flex-col items-center justify-center text-center">
@@ -380,15 +383,14 @@ export function HomePage() {
           Create wonderful code, build a wonderful world
         </p>
 
-        <div className="group relative mt-9 w-full max-w-3xl overflow-hidden rounded-4xl bg-slate-200/60 p-0.5 shadow-xl shadow-sky-900/5 transition-all duration-300 focus-within:shadow-2xl focus-within:shadow-sky-500/10">
-          {/* 彩虹层只露出外层 2px padding，内侧由纯白输入面板完全遮住。 */}
-          <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 ease-out group-focus-within:opacity-100">
-            <div className="absolute top-1/2 left-1/2 aspect-square w-[120%] -translate-x-1/2 -translate-y-1/2">
-              <div className="h-full w-full animate-[spin_4.5s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#38bdf8,#6366f1,#d946ef,#f97316,#facc15,#22c55e,#06b6d4,#38bdf8)]" />
+        <div className="group relative mt-9 w-full max-w-3xl overflow-hidden rounded-[28px] bg-gradient-to-b from-slate-100/80 to-white/90 p-[2px] shadow-[0_4px_24px_-4px_rgba(99,102,241,0.15),0_8px_32px_-8px_rgba(139,92,246,0.1)] transition-all duration-500 ease-out hover:shadow-[0_8px_32px_-4px_rgba(99,102,241,0.2),0_12px_40px_-8px_rgba(139,92,246,0.15),inset_0_1px_2px_rgba(255,255,255,0.8)] hover:-translate-y-0.5 focus-within:shadow-[0_12px_40px_-4px_rgba(99,102,241,0.25),0_16px_48px_-8px_rgba(139,92,246,0.2)]">
+          <div className="pointer-events-none absolute inset-0 opacity-0 transition-all duration-700 ease-out group-focus-within:opacity-100 group-focus-within:scale-[1.02]">
+            <div className="absolute top-1/2 left-1/2 aspect-square w-[140%] -translate-x-1/2 -translate-y-1/2 blur-sm">
+              <div className="h-full w-full animate-[spin_6s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#6366f1,#8b5cf6,#a855f7,#d946ef,#ec4899,#f43f5e,#6366f1)] opacity-90" />
             </div>
           </div>
 
-          <div className="relative z-10 h-full w-full rounded-[calc(2rem-2px)] bg-white px-4 py-3 text-left">
+          <div className="relative z-10 h-full w-full rounded-[26px] bg-white/95 px-6 py-5 text-left backdrop-blur-sm shadow-[inset_0_1px_3px_rgba(0,0,0,0.02)]">
             <label
               htmlFor="home-app-prompt"
               className="sr-only"
@@ -404,26 +406,32 @@ export function HomePage() {
               value={prompt}
               onChange={(event) => setPrompt(event.target.value)}
               placeholder={promptPlaceholder}
-              className="max-h-56 min-h-18 resize-none rounded-3xl px-2! pt-1! text-base! leading-7! text-slate-800! placeholder:text-slate-400!"
+              className="max-h-56 min-h-20 resize-none px-1! pt-2! text-[16px]! leading-[1.75]! text-slate-800! placeholder:text-slate-400! placeholder:font-light!"
             />
 
-            <div className="mt-1 flex justify-end">
+            <div className="mt-3 flex items-center justify-between border-t border-slate-100/80 pt-3">
+              <span className="text-xs text-slate-400 font-medium tracking-wide">
+                按 Enter 发送 · Shift+Enter 换行
+              </span>
               <Button
                 htmlType="button"
                 type="primary"
-                shape="circle"
+                shape="round"
+                size="large"
                 loading={isCreateAppBusy}
                 disabled={isCreateAppBusy}
                 onClick={handleCreateApp}
                 aria-label="生成应用"
                 icon={
                   <ArrowUp
-                    className="size-5"
+                    className="size-4"
                     aria-hidden="true"
                   />
                 }
-                className="size-10! border-0! bg-linear-to-r from-sky-500 to-blue-600 shadow-md transition-all hover:-translate-y-0.5 hover:scale-105 hover:opacity-90"
-              />
+                className="h-11! rounded-full! border-0! bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-600 pl-6! pr-6! text-base! font-semibold! text-white! shadow-lg shadow-indigo-500/25 transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.02] hover:shadow-xl hover:shadow-indigo-500/30 active:scale-[0.98]"
+              >
+                生成应用
+              </Button>
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import zhidaLogo from '@/assets/zhida-logo.svg'
+import yidaLogo from '@/assets/yida-logo.svg'
 import { useLogout } from '@/api/generated/endpoints/auth'
 import { queryClient } from '@/libs/query-client'
 import { useAuthSessionStore } from '@/stores/auth-session'
@@ -83,10 +83,10 @@ export default function BasicLayout({ children }: { children: ReactNode }) {
     },
     isAdmin
       ? {
-          key: 'admin',
-          label: '后台系统',
-          icon: <ShieldCheck className="size-4" />,
-        }
+        key: 'admin',
+        label: '后台系统',
+        icon: <ShieldCheck className="size-4" />,
+      }
       : null,
     { type: 'divider' },
     {
@@ -126,11 +126,11 @@ export default function BasicLayout({ children }: { children: ReactNode }) {
         <div className="mx-auto flex h-full max-w-7xl items-center px-4 sm:px-6 lg:px-8">
           <div className="flex shrink-0 items-center gap-2.5">
             <img
-              src={zhidaLogo}
+              src={yidaLogo}
               alt="Logo"
               className="h-12 w-12"
             />
-            <span className="text-base font-semibold text-slate-800">智搭</span>
+            <span className="text-base font-semibold text-slate-800">易搭</span>
           </div>
 
           <div className="flex min-w-0 flex-1 pl-8">
@@ -190,14 +190,14 @@ export default function BasicLayout({ children }: { children: ReactNode }) {
         <div className="text-center">
           <p className="m-0 text-sm text-slate-500">
             © {new Date().getFullYear()}{' '}
-            <span className="font-medium text-slate-600">Yida 易搭低代码应用生成系统</span>. Designed by{' '}
+            <span className="font-medium text-slate-600">Yida 易搭 AI 零代码应用生成平台</span>. Designed by{' '}
             <a
-              href="https://github.com/ymz6"
+              href="https://www.xinxinnote.tech/"
               target="_blank"
               rel="noreferrer"
               className="text-sky-500 no-underline hover:text-sky-600"
             >
-              ymz
+              Xinxinnote Tech
             </a>
           </p>
         </div>

@@ -1,4 +1,4 @@
-import zhidaLogo from '@/assets/zhida-logo.svg'
+import yidaLogo from '@/assets/yida-logo.svg'
 import { ArrowLeft, LogIn, UserPlus } from 'lucide-react'
 import { useLocation, useNavigate } from '@tanstack/react-router'
 import { Button, Flex, Layout, Tabs } from 'antd'
@@ -63,8 +63,8 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
               gap={12}
             >
               <img
-                src={zhidaLogo}
-                alt="智搭 Logo"
+                src={yidaLogo}
+                alt="易搭 Logo"
                 className="h-20 w-20"
               />
               <h1 className="m-0 text-[40px] font-semibold tracking-tight text-slate-950">Yida 易搭</h1>
@@ -94,7 +94,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       </Layout.Content>
 
       <Layout.Footer className="relative bg-transparent px-6 pb-8 pt-0 text-center text-xs leading-6 text-slate-400 sm:text-sm">
-        <p>智搭低代码应用生成系统</p>
+        <p>易搭低代码应用生成系统</p>
         <p>
           Designed by{' '}
           <a

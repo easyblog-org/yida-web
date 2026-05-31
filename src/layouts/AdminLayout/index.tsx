@@ -1,4 +1,4 @@
-import zhidaLogo from '@/assets/zhida-logo.svg'
+import yidaLogo from '@/assets/yida-logo.svg'
 import { useLogout } from '@/api/generated/endpoints/auth'
 import { queryClient } from '@/libs/query-client'
 import { useAuthSessionStore } from '@/stores/auth-session'
@@ -152,14 +152,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           >
             <div className="shrink-0">
               <img
-                src={zhidaLogo}
-                alt="智搭 Logo"
+                src={yidaLogo}
+                alt="易搭 Logo"
                 className="size-14"
               />
             </div>
             <div className="min-w-0">
               <Text className="block truncate text-2xl font-semibold tracking-tight text-slate-900">
-                智搭后台
+                易搭后台
               </Text>
             </div>
           </Flex>
@@ -280,18 +280,18 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             >
               <Text className="text-sm text-slate-400">
                 © {new Date().getFullYear()}{' '}
-                <Text className="font-medium text-slate-600">Yida 易搭低代码应用生成系统</Text>
+                <Text className="font-medium text-slate-600">Yida 易搭 AI 零代码应用生成平台</Text>
               </Text>
               <Text className="text-sm text-slate-300">·</Text>
               <Text className="text-sm text-slate-400">
                 Designed by{' '}
                 <TypographyLink
-                  href="https://github.com/ymz6"
+                  href="https://www.xinxinnote.tech/"
                   target="_blank"
                   rel="noreferrer"
                   className="font-medium text-sky-500! no-underline! hover:text-sky-600!"
                 >
-                  ymz
+                  Xinxinnote Tech
                 </TypographyLink>
               </Text>
             </Flex>

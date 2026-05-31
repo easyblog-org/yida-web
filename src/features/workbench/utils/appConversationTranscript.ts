@@ -2,27 +2,27 @@ export type AppConversationTranscriptBlock =
   | { type: 'text'; content: string }
   | { type: 'thinking'; content: string; streaming?: boolean }
   | {
-      type: 'tool-call'
-      name: string
-      title: string
-      content: string
-      streaming?: boolean
-    }
+    type: 'tool-call'
+    name: string
+    title: string
+    content: string
+    streaming?: boolean
+  }
   | {
-      type: 'tool-result'
-      name: string
-      title: string
-      success: boolean
-      content: string
-      streaming?: boolean
-    }
+    type: 'tool-result'
+    name: string
+    title: string
+    success: boolean
+    content: string
+    streaming?: boolean
+  }
 
 type TranscriptTagName = 'thinking' | 'tool-call' | 'tool-result'
 
-const transcriptTagPattern = /<\/?zhida-(thinking|tool-call|tool-result)\b[^>]*>/g
+const transcriptTagPattern = /<\/?yida-(thinking|tool-call|tool-result)\b[^>]*>/g
 
 function stripTrailingPartialTranscriptTag(content: string) {
-  return content.replace(/<\/?zhida-[a-z-]*(?:\s[^<>]*)?$/i, '').replace(/<\/?$/, '')
+  return content.replace(/<\/?yida-[a-z-]*(?:\s[^<>]*)?$/i, '').replace(/<\/?$/, '')
 }
 
 function parseTranscriptAttributes(rawTag: string) {
@@ -110,7 +110,7 @@ export function parseAppConversationTranscript(content: string): AppConversation
     }
 
     const bodyStart = tagMatch.index + rawTag.length
-    const closeTag = `</zhida-${tagName}>`
+    const closeTag = `</yida-${tagName}>`
     const closeIndex = content.indexOf(closeTag, bodyStart)
 
     // 流式过程中闭合标签可能还没到达，先把当前块标记为 streaming。

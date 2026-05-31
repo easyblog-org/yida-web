@@ -48,7 +48,7 @@ export function AppCard({
           ) : (
             <div className="flex h-full flex-col items-center justify-center px-5 text-center text-white">
               <span className="text-xs font-semibold uppercase tracking-[0.24em] text-white/70">
-                Zhida
+                Yida
               </span>
               <span className="mt-2 line-clamp-2 text-2xl font-bold leading-tight text-white/95">
                 {app.name}

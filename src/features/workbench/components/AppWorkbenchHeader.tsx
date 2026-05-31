@@ -1,4 +1,4 @@
-import zhidaLogo from '@/assets/zhida-logo.svg'
+import yidaLogo from '@/assets/yida-logo.svg'
 import {
   downloadAppSourceCode,
   invalidateGetApp,
@@ -196,27 +196,27 @@ export function AppWorkbenchHeader({ app }: { app?: AppVO }) {
     },
     isAuditPending
       ? {
-          key: 'withdraw-audit',
-          disabled: !canWithdrawAudit || withdrawAuditMutation.isPending,
-          icon: (
-            <Undo2
-              className="size-4"
-              aria-hidden="true"
-            />
-          ),
-          label: withdrawAuditMutation.isPending ? '正在撤回' : '撤回审核',
-        }
+        key: 'withdraw-audit',
+        disabled: !canWithdrawAudit || withdrawAuditMutation.isPending,
+        icon: (
+          <Undo2
+            className="size-4"
+            aria-hidden="true"
+          />
+        ),
+        label: withdrawAuditMutation.isPending ? '正在撤回' : '撤回审核',
+      }
       : {
-          key: 'submit-audit',
-          disabled: !canSubmitAudit || submitAuditMutation.isPending,
-          icon: (
-            <SendHorizontal
-              className="size-4"
-              aria-hidden="true"
-            />
-          ),
-          label: submitAuditMutation.isPending ? '正在提交' : '提交审核',
-        },
+        key: 'submit-audit',
+        disabled: !canSubmitAudit || submitAuditMutation.isPending,
+        icon: (
+          <SendHorizontal
+            className="size-4"
+            aria-hidden="true"
+          />
+        ),
+        label: submitAuditMutation.isPending ? '正在提交' : '提交审核',
+      },
   ]
 
   const deployButton = (
@@ -275,7 +275,7 @@ export function AppWorkbenchHeader({ app }: { app?: AppVO }) {
           title="返回首页"
         >
           <img
-            src={zhidaLogo}
+            src={yidaLogo}
             alt="Yida 易搭 Logo"
             className="h-full! w-full! max-w-full! object-contain"
           />
