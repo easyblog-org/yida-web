@@ -54,6 +54,9 @@ export function AppWorkbenchHeader({ app }: { app?: AppVO }) {
   const deployedAtText = app?.deployedAt ? app.deployedAt.replace('T', ' ').slice(0, 19) : '-'
 
   const deployMutation = useDeployApp<{ message?: string }>({
+    request: {
+      timeout: 60000,
+    },
     mutation: {
       onSuccess: async (_response, variables) => {
         message.success('部署成功')

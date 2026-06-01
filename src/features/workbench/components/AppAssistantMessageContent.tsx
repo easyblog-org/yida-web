@@ -1,6 +1,7 @@
 import { Think } from '@ant-design/x'
 import { XMarkdown } from '@ant-design/x-markdown'
 import { CheckCircle, CircleDashed, Wrench, XCircle } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 import {
   parseAppConversationTranscript,
@@ -46,10 +47,18 @@ function AppAssistantTranscriptBlock({
   }
 
   if (block.type === 'thinking') {
+    const isThinking = hasNextChunk && block.streaming
+    const [expanded, setExpanded] = useState(isThinking)
+    useEffect(() => {
+      if (!isThinking) {
+        setExpanded(false)
+      }
+    }, [isThinking])
     return (
       <Think
         title="思考过程"
-        defaultExpanded={hasNextChunk || block.streaming}
+        expanded={isThinking || expanded}
+        onExpand={setExpanded}
         loading={hasNextChunk && block.streaming}
       >
         <AppAssistantMarkdown
@@ -62,45 +71,46 @@ function AppAssistantTranscriptBlock({
   }
 
   if (block.type === 'tool-call') {
+    const isStreaming = hasNextChunk && block.streaming
+    const [expanded, setExpanded] = useState(isStreaming)
+    useEffect(() => {
+      if (!isStreaming) {
+        setExpanded(false)
+      }
+    }, [isStreaming])
     return (
-      <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
-        <div className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600">
-          {block.streaming ? (
-            <CircleDashed className="size-3.5 animate-spin" />
-          ) : (
-            <Wrench className="size-3.5" />
-          )}
-          <span>{block.title || block.name || '工具调用'}</span>
-        </div>
+      <Think
+        title={block.title || block.name || '工具调用'}
+        icon={block.streaming ? <CircleDashed className="size-3.5 animate-spin" /> : <Wrench className="size-3.5" />}
+        expanded={isStreaming || expanded}
+        onExpand={setExpanded}
+        loading={hasNextChunk && block.streaming}
+      >
         <AppAssistantMarkdown
           content={block.content}
           hasNextChunk={hasNextChunk}
           className="x-markdown-light text-xs leading-5 text-slate-600"
         />
-      </div>
+      </Think>
     )
   }
 
   const ResultIcon = block.success ? CheckCircle : XCircle
-  const resultClassName = block.success
-    ? 'rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2'
-    : 'rounded-md border border-rose-200 bg-rose-50 px-3 py-2'
-  const headerClassName = block.success
-    ? 'mb-1 flex items-center gap-2 text-xs font-medium text-emerald-700'
-    : 'mb-1 flex items-center gap-2 text-xs font-medium text-rose-700'
+  const [resultExpanded, setResultExpanded] = useState(false)
 
   return (
-    <div className={resultClassName}>
-      <div className={headerClassName}>
-        <ResultIcon className="size-3.5" />
-        <span>{block.title || block.name || '工具结果'}</span>
-      </div>
+    <Think
+      title={block.title || block.name || '工具结果'}
+      icon={<ResultIcon className="size-3.5" />}
+      expanded={resultExpanded}
+      onExpand={setResultExpanded}
+    >
       <AppAssistantMarkdown
         content={block.content}
         hasNextChunk={hasNextChunk}
-        className="x-markdown-light text-xs leading-5 text-slate-700"
+        className={`x-markdown-light text-xs leading-5 ${block.success ? 'text-emerald-700' : 'text-rose-700'}`}
       />
-    </div>
+    </Think>
   )
 }
 
