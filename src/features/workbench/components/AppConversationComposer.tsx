@@ -107,6 +107,13 @@ export function AppConversationComposer({
     }
   }
 
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' && !event.shiftKey && !isSendDisabled) {
+      event.preventDefault()
+      handleSubmit(prompt)
+    }
+  }
+
   return (
     <div className="relative shrink-0 bg-gradient-to-b from-white via-white to-slate-50/50 px-4 pt-3 pb-4 shadow-[0_-4px_24px_rgba(0,0,0,0.03)]">
       <div className="pointer-events-none absolute inset-x-0 -top-5 h-5 bg-gradient-to-b from-white/0 via-white/80 to-white" />
@@ -136,6 +143,8 @@ export function AppConversationComposer({
         value={prompt}
         onChange={(v) => setPrompt(v)}
         onSubmit={handleSubmit}
+        submitType="enter"
+        onKeyDown={handleKeyDown}
         disabled={isComposerDisabled}
         loading={isSubmitting}
         autoSize={{ minRows: 1, maxRows: 6 }}
@@ -197,7 +206,7 @@ export function AppConversationComposer({
                       aria-hidden="true"
                     />
                   }
-                  className="size-9! shrink-0! rounded-full! border-0! bg-gradient-to-br from-indigo-500 to-purple-600! text-white! shadow-md shadow-indigo-500/25! transition-all duration-300 hover:-translate-y-0.5 hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/30! active:scale-95 disabled:from-slate-400 disabled:to-slate-400 disabled:shadow-none!"
+                  className={`size-9! shrink-0! rounded-full! border-0! shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:scale-105 hover:shadow-lg active:scale-95 ${isSendDisabled ? 'cursor-not-allowed! bg-slate-200! text-slate-400! shadow-none!' : 'bg-slate-950! text-white! shadow-slate-950/20! hover:bg-slate-800! hover:shadow-slate-950/30!'}`}
                 />
               </span>
             </Tooltip>
