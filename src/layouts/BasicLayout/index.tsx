@@ -3,7 +3,8 @@ import { useLogout } from '@/api/generated/endpoints/auth'
 import { queryClient } from '@/libs/query-client'
 import { useAuthSessionStore } from '@/stores/auth-session'
 import { useLocation, useNavigate } from '@tanstack/react-router'
-import { App, Avatar, Button, Dropdown, Layout, Menu } from 'antd'
+import { Link } from '@tanstack/react-router'
+import { App, Button, Dropdown, Layout, Menu } from 'antd'
 import type { MenuProps } from 'antd'
 import { ChevronDown, LogOut, ShieldCheck, User } from 'lucide-react'
 import type { ReactNode } from 'react'
@@ -124,14 +125,21 @@ export default function BasicLayout({ children }: { children: ReactNode }) {
     <Layout className="min-h-screen">
       <Layout.Header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 px-0 backdrop-blur-sm">
         <div className="mx-auto flex h-full max-w-7xl items-center px-4 sm:px-6 lg:px-8">
-          <div className="flex shrink-0 items-center gap-2.5">
-            <img
-              src={yidaLogo}
-              alt="Logo"
-              className="h-12 w-12"
-            />
-            <span className="text-base font-semibold text-slate-800">易搭</span>
-          </div>
+          <Link
+            to="/"
+            className="group flex shrink-0 items-center gap-2 transition-opacity hover:opacity-80"
+          >
+            <div className="flex size-9 items-center justify-center rounded-[12px] shadow-sm sm:size-10">
+              <img
+                src={yidaLogo}
+                alt="Logo"
+                className="h-16 w-16"
+              />
+            </div>
+            <span className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+              Yida
+            </span>
+          </Link>
 
           <div className="flex min-w-0 flex-1 pl-8">
             <Menu
@@ -159,13 +167,17 @@ export default function BasicLayout({ children }: { children: ReactNode }) {
                 shape="round"
                 className="group flex h-auto shrink-0 items-center gap-2 px-2! py-1! hover:bg-slate-100/90 [&.ant-dropdown-open_.user-dropdown-chevron]:rotate-180"
               >
-                <Avatar
-                  size={32}
-                  src={user?.avatar}
-                  className="bg-slate-900 ring-1 ring-slate-200"
-                >
-                  {userDisplayInitial}
-                </Avatar>
+                <div className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-100 text-sm font-medium text-slate-600">
+                  {user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={userDisplayName}
+                      className="size-full object-cover"
+                    />
+                  ) : (
+                    userDisplayInitial
+                  )}
+                </div>
                 <span className="max-w-28 truncate text-sm font-medium text-slate-700 transition-colors group-hover:text-slate-900">
                   {userDisplayName}
                 </span>

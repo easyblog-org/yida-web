@@ -101,7 +101,7 @@ export function CaseAuditsTable() {
           <div className="flex min-w-0 items-center gap-2">
             <Avatar
               src={app?.author?.avatar}
-              className="shrink-0 bg-slate-900! text-xs! font-semibold!"
+              className="shrink-0 bg-slate-100! text-xs! font-semibold!"
             >
               {getCaseAuthorInitial(app)}
             </Avatar>

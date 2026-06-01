@@ -197,7 +197,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               >
                 <Avatar
                   src={userInfo?.avatar}
-                  className="bg-slate-900! text-xs! font-semibold!"
+                  className="bg-slate-100! text-xs! font-semibold!"
                 >
                   {userDisplayInitial}
                 </Avatar>

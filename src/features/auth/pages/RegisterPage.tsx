@@ -2,7 +2,7 @@ import { useRegister } from '@/api/generated/endpoints/auth'
 import type { RegisterRequest } from '@/api/generated/models'
 import { useNavigate } from '@tanstack/react-router'
 import { App, Button, Form, Input } from 'antd'
-import { Lock, ShieldCheck, User } from 'lucide-react'
+import { Lock, Mail, ShieldCheck } from 'lucide-react'
 
 export function RegisterPage() {
   const navigate = useNavigate()
@@ -33,25 +33,25 @@ export function RegisterPage() {
     >
       <Form.Item
         name="account"
+        label="邮箱"
         validateFirst
         rules={[
-          { required: true, message: '请输入账号' },
+          { required: true, message: '请输入邮箱' },
           {
-            min: 3,
-            max: 32,
-            message: '账号长度需为 3 到 32 个字符',
+            type: 'email',
+            message: '请输入有效的邮箱地址',
           },
           {
-            pattern: /^[A-Za-z0-9_]+$/,
-            message: '账号仅支持字母、数字和下划线',
+            max: 64,
+            message: '邮箱长度不能超过64个字符',
           },
         ]}
       >
         <Input
-          prefix={<User />}
-          placeholder="请输入账号"
-          autoComplete="username"
-          maxLength={32}
+          prefix={<Mail />}
+          placeholder="请输入邮箱地址"
+          autoComplete="email"
+          maxLength={64}
           className="h-11 rounded-lg"
         />
       </Form.Item>

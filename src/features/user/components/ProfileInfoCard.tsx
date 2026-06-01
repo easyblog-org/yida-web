@@ -44,7 +44,7 @@ export function ProfileInfoCard({
               <Avatar
                 size={80}
                 src={profile.avatar}
-                className="bg-slate-900! ring-2 ring-white transition-transform duration-200 group-hover:scale-[1.02] group-focus-visible:scale-[1.02]"
+                className="bg-slate-100! ring-2 ring-white transition-transform duration-200 group-hover:scale-[1.02] group-focus-visible:scale-[1.02]"
               >
                 {profileDisplayInitial}
               </Avatar>
