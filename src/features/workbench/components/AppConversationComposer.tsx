@@ -14,6 +14,8 @@ const composerActionButtonClassName =
 const composerInactiveActionButtonClassName = `${composerActionButtonClassName} bg-white! text-slate-700! hover:bg-white! hover:text-slate-900!`
 const composerActiveActionButtonClassName = `${composerActionButtonClassName} bg-slate-900! text-white! hover:bg-slate-800! hover:text-white!`
 
+const MAX_PROMPT_LENGTH = 1000
+
 export function AppConversationComposer({
   isSubmitEnabled,
   isSubmitting,
@@ -32,6 +34,12 @@ export function AppConversationComposer({
   onSubmitMessage: (prompt: string) => boolean
 }) {
   const [prompt, setPrompt] = useState('')
+
+  const handlePromptChange = (v: string) => {
+    setPrompt(v.length > MAX_PROMPT_LENGTH ? v.slice(0, MAX_PROMPT_LENGTH) : v)
+  }
+
+  const isOverLimit = prompt.length >= MAX_PROMPT_LENGTH
 
   const isComposerDisabled = Boolean(isSubmitting || !isSubmitEnabled)
   const isPromptEmpty = prompt.trim().length === 0
@@ -141,7 +149,7 @@ export function AppConversationComposer({
       )}
       <Sender
         value={prompt}
-        onChange={(v) => setPrompt(v)}
+        onChange={handlePromptChange}
         onSubmit={handleSubmit}
         submitType="enter"
         onKeyDown={handleKeyDown}
@@ -155,7 +163,10 @@ export function AppConversationComposer({
               : '先在右侧预览选择元素，再描述修改需求'
             : '描述想生成或调整的地方，可以一步一步完善生成效果'
         }
-        className="relative z-10 rounded-[20px]! border border-slate-200/80 bg-gradient-to-b from-white to-slate-50/30 px-4 pt-3.5 pb-3 shadow-[0_2px_12px_rgba(99,102,241,0.06),inset_0_1px_2px_rgba(255,255,255,0.8)] transition-all duration-300 hover:border-indigo-200/60 hover:shadow-[0_4px_16px_rgba(99,102,241,0.1),inset_0_1px_2px_rgba(255,255,255,0.9)] focus-within:border-indigo-300/80 focus-within:shadow-[0_4px_20px_rgba(99,102,241,0.15),0_0_0_3px_rgba(99,102,241,0.08)]"
+        className={`relative z-10 rounded-[20px]! px-4 pt-3.5 pb-3 shadow-[0_2px_12px_rgba(99,102,241,0.06),inset_0_1px_2px_rgba(255,255,255,0.8)] transition-all duration-300 ${isOverLimit
+          ? 'border-2 border-red-400! bg-red-50/30!'
+          : 'border border-slate-200/80 bg-gradient-to-b from-white to-slate-50/30 hover:border-indigo-200/60 hover:shadow-[0_4px_16px_rgba(99,102,241,0.1),inset_0_1px_2px_rgba(255,255,255,0.9)] focus-within:border-indigo-300/80 focus-within:shadow-[0_4px_20px_rgba(99,102,241,0.15),0_0_0_3px_rgba(99,102,241,0.08)'
+          }`}
         classNames={{
           content: 'items-start!',
           input:
@@ -189,6 +200,11 @@ export function AppConversationComposer({
                   </Button>
                 </span>
               </Tooltip>
+              {prompt.length > 0 && (
+                <span className={`text-xs tabular-nums ${isOverLimit ? 'font-medium text-red-500' : 'text-slate-400'}`}>
+                  {prompt.length}/{MAX_PROMPT_LENGTH}
+                </span>
+              )}
             </div>
             <Tooltip title={sendTooltipTitle}>
               <span className="inline-flex">
