@@ -2,19 +2,16 @@ import { useListCases } from '@/api/generated/endpoints/case'
 import type { AppVO, PageResultAppVO } from '@/api/generated/models'
 import emptyAppCover from '@/assets/empty-app-cover.svg'
 import { Link } from '@tanstack/react-router'
-import { keepPreviousData } from '@tanstack/react-query'
-import { Alert, Skeleton } from 'antd'
+import { Skeleton } from 'antd'
 import { ArrowRight, BookOpen, ChevronDown, LayoutGrid, Star } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 import {
-  getPublicCaseErrorMessage,
   openPublicCaseDetailInNewTab,
 } from '@/features/cases-square/utils/publicCase'
 
 /* ──────── 常量 ───────── */
-const INITIAL_PAGE_SIZE = 16 // 首屏 4 行 × 4 列
-const LOAD_MORE_SIZE = 10   // 每次加载更多
+const PAGE_SIZE = 12           // 每页加载条数（首屏 & 分页一致）
 const ALLOWED_DUPLICATE_COUNT = 2 // 去重允许容差
 
 /** 分类筛选标签 */
@@ -33,9 +30,9 @@ type CategoryValue = (typeof CATEGORY_TABS)[number]['value']
 
 /* ───────── 工具函数 ──────── */
 
-/** 根据页码返回本次请求的 pageSize */
-function getPageSize(pageNum: number) {
-  return pageNum === 1 ? INITIAL_PAGE_SIZE : LOAD_MORE_SIZE
+/** 返回每页加载条数 */
+function getPageSize(_pageNum: number) {
+  return PAGE_SIZE
 }
 
 /** 格式化日期为 YYYY-MM-DD */
@@ -116,23 +113,25 @@ function SortDropdown({
 export function FeaturedCasesSection() {
 
   // ── 分页 / 数据状态 ──
+  const [activeCategory, setActiveCategory] = useState<CategoryValue>('all')
+  const [sortBy, setSortBy] = useState('default')
   const [pageNum, setPageNum] = useState(1)
+
   const [allCases, setAllCases] = useState<AppVO[]>([])
   const [hasMore, setHasMore] = useState(true)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [initialLoadingDone, setInitialLoadingDone] = useState(false)
-  const [activeCategory, setActiveCategory] = useState<CategoryValue>('all')
-  const [sortBy, setSortBy] = useState('default')
 
-  // 根据分类标签生成搜索关键词（"全部"时不传）
-  const searchKeyword = activeCategory === 'all' ? undefined : CATEGORY_TABS.find((t) => t.value === activeCategory)?.label
+  // ─ 根据分类标签生成搜索关键词（"全部"时不传 keyword） ──
+  const searchKeyword = activeCategory === 'all'
+    ? undefined
+    : CATEGORY_TABS.find((t) => t.value === activeCategory)?.label
 
-  // 防抖 ref
+  // ── Refs ──
   const isLoadingMoreRef = useRef(false)
-  // 跟踪上次加载前的卡片数量，用于区分"新增"卡片做动画
   const prevCountRef = useRef(0)
 
-  // ── 查询 ─
+  // ── React Query 查询（pageNum / searchKeyword 变化时自动重新请求） ──
   const query = useListCases<PageResultAppVO | undefined, { message?: string }>(
     {
       request: {
@@ -144,14 +143,15 @@ export function FeaturedCasesSection() {
     },
     {
       query: {
-        placeholderData: keepPreviousData,
         retry: false,
         select: (response) => response.data,
       },
     },
   )
 
-  // ── 数据到达时累积 ──
+  // ── 数据到达时处理（pageNum === 1 覆盖 / 否则追加） ──
+  // 注意：未使用 keepPreviousData，query key 变化时 query.data 自动变为 undefined，
+  // 因此无需额外的陈旧数据守卫，effect 只在当前查询的数据到达时触发
   useEffect(() => {
     const data = query.data
     if (!data?.list) return
@@ -159,13 +159,16 @@ export function FeaturedCasesSection() {
     const newItems = data.list
 
     if (pageNum === 1) {
+      // 首屏数据：直接覆盖
       setAllCases(newItems)
       prevCountRef.current = newItems.length
     } else {
+      // 分页追加：去重后追加到已有列表
       setAllCases((prev) => {
         const existingIds = new Set(prev.map((c) => c.id).filter(Boolean))
         const uniqueNew = newItems.filter((c) => c.id && !existingIds.has(c.id))
 
+        // 当去重后数量差异过大时，回退到使用全量数据（防止服务端重复返回旧数据导致丢数据）
         if (
           uniqueNew.length < newItems.length - ALLOWED_DUPLICATE_COUNT &&
           newItems.length > 0
@@ -182,10 +185,9 @@ export function FeaturedCasesSection() {
     setIsLoadingMore(false)
     isLoadingMoreRef.current = false
     setInitialLoadingDone(true)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query.data, pageNum])
 
-  // ── 加载更多 ──
+  // ── 加载更多（分页） ──
   const handleLoadMore = () => {
     if (isLoadingMoreRef.current || !hasMore || query.isFetching) return
     isLoadingMoreRef.current = true
@@ -193,7 +195,7 @@ export function FeaturedCasesSection() {
     setPageNum((prev) => prev + 1)
   }
 
-  // ── 切换分类标签（重置分页和数据） ──
+  // ── 切换分类标签（重置分页、清空数据、重新加载） ──
   const handleCategoryChange = (value: CategoryValue) => {
     if (value === activeCategory) return
     setActiveCategory(value)
@@ -201,6 +203,7 @@ export function FeaturedCasesSection() {
     setAllCases([])
     setHasMore(true)
     setIsLoadingMore(false)
+    setInitialLoadingDone(false)
     prevCountRef.current = 0
   }
 
@@ -243,22 +246,88 @@ export function FeaturedCasesSection() {
     )
   }
 
-  /* ───────── 错误状态 ───────── */
+  /* ───────── 错误状态（展示空页面） ───────── */
   if (query.isError && allCases.length === 0) {
+    const isEmpty = true
+
     return (
       <section
-        className="relative z-10 w-full mt-4"
+        className="relative z-10 mb-2 min-h-[100vh] px-4 sm:px-6 lg:px-8"
+        style={{ marginLeft: 'calc(-50vw + 50%)', width: '100vw' }}
       >
         <div className="overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-sm">
-          <div className="px-6 py-6 sm:px-10 sm:py-8">
-            <h2 className="text-xl font-bold text-slate-950 sm:text-2xl">案例广场</h2>
-            <Alert
-              showIcon
-              type="error"
-              title="案例加载失败"
-              description={getPublicCaseErrorMessage(query.error, '请稍后重试')}
-              className="mt-6 rounded-xl"
-            />
+          <div className="px-4 py-4 sm:px-6 sm:py-6">
+
+            {/* ─ 标题行 ── */}
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-slate-950 sm:text-2xl">案例广场</h2>
+              <Link
+                to="/cases"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-1.5 text-sm text-slate-600 transition-colors hover:border-indigo-200 hover:text-indigo-600"
+              >
+                <LayoutGrid className="size-3.5" aria-hidden="true" />
+                全部案例
+                <ArrowRight className="size-3.5" aria-hidden="true" />
+              </Link>
+            </div>
+
+            {/* ── 工具栏：排序 + 分类标签 ── */}
+            <div className="mt-5 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <SortDropdown value={sortBy} onChange={setSortBy} />
+
+              {/* 分类标签滚动容器 */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                {CATEGORY_TABS.map((tab) => (
+                  <button
+                    key={tab.value}
+                    type="button"
+                    onClick={() => handleCategoryChange(tab.value)}
+                    className={`shrink-0 cursor-pointer rounded-full px-3.5 py-1.5 text-sm font-medium transition-all duration-200 ${activeCategory === tab.value
+                      ? 'bg-slate-900 text-white shadow-sm'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800'
+                      }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {isEmpty && (
+              /* ── 空状态 ─ */
+              <div className="mt-16 flex flex-col items-center justify-center text-center">
+                <div className="relative">
+                  <svg width="120" height="96" viewBox="0 0 120 96" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <rect x="20" y="36" width="80" height="52" rx="4" stroke="#CBD5E1" strokeWidth="2" fill="#F8FAFC" />
+                    <path d="M24 40H56V84H24C21.7909 84 20 82.2091 20 80V44C20 41.7909 21.7909 40 24 40Z" fill="url(#boxGrad)" rx="2" />
+                    <path d="M20 36L60 56L100 36L60 16L20 36Z" stroke="#CBD5E1" strokeWidth="2" fill="#F8FAFC" />
+                    <path d="M20 36L60 56V48L20 28V36Z" fill="#E2E8F0" />
+                    <rect x="68" y="54" width="12" height="10" rx="2" fill="#93C5FD" />
+                    <line x1="68" y1="72" x2="92" y2="72" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" />
+                    <line x1="68" y1="78" x2="84" y2="78" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" />
+                    <circle cx="88" cy="22" r="8" fill="#FEF3C7" />
+                    <path d="M88 18V26M84 22H92" stroke="#D97706" strokeWidth="1.5" strokeLinecap="round" />
+                    <path d="M44 18L45.5 21L49 22L46 24.5L46.5 28L43 26L39.5 28L40 24.5L37 22L40.5 21Z" fill="#EC4899" />
+                    <defs>
+                      <linearGradient id="boxGrad" x1="20" y1="40" x2="56" y2="84" gradientUnits="userSpaceOnUse">
+                        <stop stopColor="#6366F1" />
+                        <stop offset="1" stopColor="#4338CA" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </div>
+                <p className="mt-6 text-base text-slate-500">
+                  案例加载失败，
+                  <button
+                    type="button"
+                    onClick={() => window.location.reload()}
+                    className="font-medium text-indigo-500 hover:text-indigo-600 hover:underline"
+                  >
+                    点击重试
+                  </button>
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -270,7 +339,7 @@ export function FeaturedCasesSection() {
 
   return (
     <section
-      className="relative z-10 mb-10 min-h-[100vh] px-4 sm:px-6 lg:px-8"
+      className="relative z-10 mb-2 min-h-[100vh] px-4 sm:px-6 lg:px-8"
       style={{ marginLeft: 'calc(-50vw + 50%)', width: '100vw' }}
     >
       {/* ====== 白色大卡片容器 ====== */}

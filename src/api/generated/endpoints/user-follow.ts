@@ -162,7 +162,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
       return customInstance<ResponsePageResultUserBriefVO>(
       {url: `/users/${userId}/following`, method: 'GET',
-        params, signal
+        params: params.request, signal
     },
       options);
     }
@@ -278,7 +278,7 @@ export const listFollowers = (
 
       return customInstance<ResponsePageResultUserBriefVO>(
       {url: `/users/${userId}/followers`, method: 'GET',
-        params, signal
+        params: params.request, signal
     },
       options);
     }

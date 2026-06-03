@@ -1,4 +1,6 @@
-import yidaLogo from '@/assets/yida-logo.svg'
+import yidaLogo from '@/assets/yida-logo.png'
+import yidaLogoText from '@/assets/yida-logo-text.png'
+import yidaText from '@/assets/yida-text.png'
 import { useLogout } from '@/api/generated/endpoints/auth'
 import { queryClient } from '@/libs/query-client'
 import { useAuthSessionStore } from '@/stores/auth-session'
@@ -6,8 +8,9 @@ import { useLocation, useNavigate } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
 import { App, Button, Dropdown, Layout, Menu } from 'antd'
 import type { MenuProps } from 'antd'
-import { ChevronDown, LogOut, ShieldCheck, User, Zap } from 'lucide-react'
+import { ChevronDown, GitBranch, LogOut, Mail, MessageCircle, Phone, ShieldCheck, User } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { GithubFilled, GithubOutlined } from '@ant-design/icons'
 
 /**
  * 基础的上中下布局
@@ -54,7 +57,6 @@ export default function BasicLayout({ children }: { children: ReactNode }) {
   const navItems = [
     { key: '/', label: '首页' },
     { key: '/cases', label: '案例广场' },
-    { key: '/about', label: '关于' },
   ]
 
   const menuItems: MenuProps['items'] = navItems.map((item) => ({
@@ -65,11 +67,6 @@ export default function BasicLayout({ children }: { children: ReactNode }) {
   const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
     if (key === '/cases') {
       void navigate({ to: '/cases' })
-      return
-    }
-
-    if (key === '/about') {
-      void navigate({ to: '/about' })
       return
     }
 
@@ -127,18 +124,16 @@ export default function BasicLayout({ children }: { children: ReactNode }) {
         <div className="mx-auto flex h-full max-w-7xl items-center px-4 sm:px-6 lg:px-8">
           <Link
             to="/"
-            className="group flex shrink-0 items-center gap-2 transition-opacity hover:opacity-80"
+            className="group flex shrink-0 items-center gap-2.5"
           >
-            <div className="flex size-9 items-center justify-center rounded-[12px] shadow-sm sm:size-10">
+            <div className="flex items-center justify-center sm:size-10 size-9">
               <img
                 src={yidaLogo}
                 alt="Logo"
-                className="h-16 w-16"
+                className="size-8 sm:size-9"
               />
             </div>
-            <span className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-              Yida
-            </span>
+            <img src={yidaText} alt="易搭" className="h-6 sm:h-7" />
           </Link>
 
           <div className="flex min-w-0 flex-1 pl-8">
@@ -198,20 +193,116 @@ export default function BasicLayout({ children }: { children: ReactNode }) {
       <Layout.Content>
         <div className="mx-auto w-full max-w-300">{children}</div>
       </Layout.Content>
-      <Layout.Footer>
-        <div className="text-center">
-          <p className="m-0 text-sm text-slate-500">
-            © {new Date().getFullYear()}{' '}
-            <span className="font-medium text-slate-600">Yida 易搭 AI 零代码应用生成平台</span>. Designed by{' '}
-            <a
-              href="https://www.xinxinnote.tech/"
-              target="_blank"
-              rel="noreferrer"
-              className="text-sky-500 no-underline hover:text-sky-600"
-            >
-              Xinxinnote Tech
-            </a>
-          </p>
+      <Layout.Footer className="!bg-transparent px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1200px]">
+          {/* 上部：品牌 + 导航链接 */}
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-4 lg:gap-12">
+            {/* 品牌列 */}
+            <div className="col-span-2 sm:col-span-1">
+              <Link to="/" className="group inline-flex items-center gap-2.5">
+                <div className="flex size-8 items-center justify-center">
+                  <img src={yidaLogo} alt="Logo" className="size-7" />
+                </div>
+                <span className="text-lg font-semibold text-slate-800"><img src={yidaLogoText} alt="易搭" className="h-5" /></span>
+              </Link>
+              <p className="mt-3 max-w-xs text-sm leading-relaxed text-slate-400">
+                AI 驱动的零代码应用构建平台，从想法到上线，只需一次对话。
+              </p>
+            </div>
+
+            {/* 产品 */}
+            <div>
+              <h3 className="mb-3 text-sm font-semibold text-slate-800">产品</h3>
+              <ul className="space-y-2.5">
+                <li>
+                  <Link to="/" className="text-sm text-slate-500 transition-colors hover:text-indigo-600">
+                    首页
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/cases" className="text-sm text-slate-500 transition-colors hover:text-indigo-600">
+                    案例广场
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* 关于 */}
+            <div>
+              <h3 className="mb-3 text-sm font-semibold text-slate-800">关于</h3>
+              <ul className="space-y-2.5">
+                <li>
+                  <a
+                    href="https://www.xinxinnote.tech/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-sm text-slate-500 transition-colors hover:text-indigo-600"
+                  >
+                    关于我
+                  </a>
+                </li>
+                <li>
+                  <Link to="/about" className="text-sm text-slate-500 transition-colors hover:text-indigo-600">
+                    关于本项目
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* 联系 */}
+            <div>
+              <h3 className="mb-4 text-sm font-semibold text-slate-800">联系方式</h3>
+              <ul className="space-y-4">
+                <li className="flex items-center gap-2.5">
+                  <Mail className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
+                  <span className="text-sm text-slate-600">huangxin981230@163.com</span>
+                </li>
+                <li>
+                  <div className="flex items-center gap-2.5">
+                    <MessageCircle className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
+                    <span className="text-sm text-slate-600">hx95162437</span>
+                  </div>
+                  <p className="mt-1 pl-6 text-xs text-slate-400">添加好友请备注"合作"</p>
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <Phone className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
+                  <span className="text-sm text-slate-600">+86 15709160159</span>
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <GithubOutlined className="size-[18px] shrink-0 text-slate-400" aria-hidden="true" />
+                  <span className="text-sm text-slate-600">
+                    <a href="https://github.com/LoverITer" className="text-sm text-slate-500 transition-colors hover:text-indigo-600">https://github.com/LoverITer</a>
+                  </span>
+                </li>
+                {/* <li className="flex items-center gap-4 pt-1">
+                  <a href="https://github.com/LoverITer" className="text-sm text-slate-500 transition-colors hover:text-indigo-600">GitHub</a>
+                  <a href="https://www.douyin.com/user/7222222222222222222/" className="text-sm text-slate-500 transition-colors hover:text-indigo-600">Gitee</a>
+                  <a href="https://www.xinxinnote.tech/" className="text-sm text-slate-500 transition-colors hover:text-indigo-600">稀土掘金</a>
+                </li> */}
+              </ul>
+            </div>
+          </div>
+
+          {/* 分割线 */}
+          <div className="my-8 h-px bg-slate-200/60" />
+
+          {/* 底部：版权信息 */}
+          <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
+            <p className="text-xs text-slate-400">
+              &copy; {new Date().getFullYear()} 易搭 AI 零代码应用生成平台
+            </p>
+            <p className="text-xs text-slate-400">
+              Designed by{' '}
+              <a
+                href="https://www.xinxinnote.tech/"
+                target="_blank"
+                rel="noreferrer"
+                className="font-medium text-slate-500 no-underline transition-colors hover:text-indigo-500"
+              >
+                Xinxinnote Tech
+              </a>
+            </p>
+          </div>
         </div>
       </Layout.Footer>
     </Layout>

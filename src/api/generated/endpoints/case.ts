@@ -37,44 +37,45 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 export const listCases = (
-    params: ListCasesParams,
- options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+  params: ListCasesParams,
+  options?: SecondParameter<typeof customInstance>, signal?: AbortSignal
 ) => {
 
 
-      return customInstance<ResponsePageResultAppVO>(
-      {url: `/cases`, method: 'GET',
-        params, signal
+  return customInstance<ResponsePageResultAppVO>(
+    {
+      url: `/cases`, method: 'GET',
+      params: params.request, signal
     },
-      options);
-    }
+    options);
+}
 
 
 
 
 export const getListCasesQueryKey = (params?: ListCasesParams,) => {
-    return [
+  return [
     `/cases`, ...(params ? [params] : [])
-    ] as const;
-    }
+  ] as const;
+}
 
 
-export const getListCasesQueryOptions = <TData = Awaited<ReturnType<typeof listCases>>, TError = unknown>(params: ListCasesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listCases>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+export const getListCasesQueryOptions = <TData = Awaited<ReturnType<typeof listCases>>, TError = unknown>(params: ListCasesParams, options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listCases>>, TError, TData>>, request?: SecondParameter<typeof customInstance> }
 ) => {
 
-const {query: queryOptions, request: requestOptions} = options ?? {};
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getListCasesQueryKey(params);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof listCases>>> = ({ signal }) => listCases(params, requestOptions, signal);
+  const queryKey = queryOptions?.queryKey ?? getListCasesQueryKey(params);
 
 
 
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listCases>>> = ({ signal }) => listCases(params, requestOptions, signal);
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listCases>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<Awaited<ReturnType<typeof listCases>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
 export type ListCasesQueryResult = NonNullable<Awaited<ReturnType<typeof listCases>>>
@@ -82,46 +83,50 @@ export type ListCasesQueryError = unknown
 
 
 export function useListCases<TData = Awaited<ReturnType<typeof listCases>>, TError = unknown>(
- params: ListCasesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listCases>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof listCases>>,
-          TError,
-          Awaited<ReturnType<typeof listCases>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+  params: ListCasesParams, options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof listCases>>, TError, TData>> & Pick<
+      DefinedInitialDataOptions<
+        Awaited<ReturnType<typeof listCases>>,
+        TError,
+        Awaited<ReturnType<typeof listCases>>
+      >, 'initialData'
+    >, request?: SecondParameter<typeof customInstance>
+  }
+  , queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useListCases<TData = Awaited<ReturnType<typeof listCases>>, TError = unknown>(
- params: ListCasesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listCases>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof listCases>>,
-          TError,
-          Awaited<ReturnType<typeof listCases>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+  params: ListCasesParams, options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listCases>>, TError, TData>> & Pick<
+      UndefinedInitialDataOptions<
+        Awaited<ReturnType<typeof listCases>>,
+        TError,
+        Awaited<ReturnType<typeof listCases>>
+      >, 'initialData'
+    >, request?: SecondParameter<typeof customInstance>
+  }
+  , queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useListCases<TData = Awaited<ReturnType<typeof listCases>>, TError = unknown>(
- params: ListCasesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listCases>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+  params: ListCasesParams, options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listCases>>, TError, TData>>, request?: SecondParameter<typeof customInstance> }
+  , queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
 export function useListCases<TData = Awaited<ReturnType<typeof listCases>>, TError = unknown>(
- params: ListCasesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listCases>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  params: ListCasesParams, options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listCases>>, TError, TData>>, request?: SecondParameter<typeof customInstance> }
+  , queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getListCasesQueryOptions(params,options)
+  const queryOptions = getListCasesQueryOptions(params, options)
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
 
 export const invalidateListCases = async (
- queryClient: QueryClient, params: ListCasesParams, options?: InvalidateOptions
-  ): Promise<QueryClient> => {
+  queryClient: QueryClient, params: ListCasesParams, options?: InvalidateOptions
+): Promise<QueryClient> => {
 
   await queryClient.invalidateQueries({ queryKey: getListCasesQueryKey(params) }, options);
 
@@ -130,7 +135,7 @@ export const invalidateListCases = async (
 
 export const useSetListCasesQueryData = () => {
   const queryClient = useQueryClient();
-  return (params: ListCasesParams,updater: Awaited<ReturnType<typeof listCases>> | undefined | ((old: Awaited<ReturnType<typeof listCases>> | undefined) => Awaited<ReturnType<typeof listCases>> | undefined)) => {
+  return (params: ListCasesParams, updater: Awaited<ReturnType<typeof listCases>> | undefined | ((old: Awaited<ReturnType<typeof listCases>> | undefined) => Awaited<ReturnType<typeof listCases>> | undefined)) => {
     queryClient.setQueryData(getListCasesQueryKey(params), updater);
   };
 }
@@ -143,43 +148,44 @@ export const useGetListCasesQueryData = () => {
 
 
 export const getCase = (
-    appId: string,
- options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+  appId: string,
+  options?: SecondParameter<typeof customInstance>, signal?: AbortSignal
 ) => {
 
 
-      return customInstance<ResponseAppVO>(
-      {url: `/cases/${appId}`, method: 'GET', signal
+  return customInstance<ResponseAppVO>(
+    {
+      url: `/cases/${appId}`, method: 'GET', signal
     },
-      options);
-    }
+    options);
+}
 
 
 
 
 export const getGetCaseQueryKey = (appId: string,) => {
-    return [
+  return [
     `/cases/${appId}`
-    ] as const;
-    }
+  ] as const;
+}
 
 
-export const getGetCaseQueryOptions = <TData = Awaited<ReturnType<typeof getCase>>, TError = unknown>(appId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCase>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+export const getGetCaseQueryOptions = <TData = Awaited<ReturnType<typeof getCase>>, TError = unknown>(appId: string, options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getCase>>, TError, TData>>, request?: SecondParameter<typeof customInstance> }
 ) => {
 
-const {query: queryOptions, request: requestOptions} = options ?? {};
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetCaseQueryKey(appId);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCase>>> = ({ signal }) => getCase(appId, requestOptions, signal);
+  const queryKey = queryOptions?.queryKey ?? getGetCaseQueryKey(appId);
 
 
 
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getCase>>> = ({ signal }) => getCase(appId, requestOptions, signal);
 
 
-   return  { queryKey, queryFn, enabled: !!(appId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCase>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+
+
+  return { queryKey, queryFn, enabled: !!(appId), ...queryOptions } as UseQueryOptions<Awaited<ReturnType<typeof getCase>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
 export type GetCaseQueryResult = NonNullable<Awaited<ReturnType<typeof getCase>>>
@@ -187,46 +193,50 @@ export type GetCaseQueryError = unknown
 
 
 export function useGetCase<TData = Awaited<ReturnType<typeof getCase>>, TError = unknown>(
- appId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCase>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getCase>>,
-          TError,
-          Awaited<ReturnType<typeof getCase>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+  appId: string, options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getCase>>, TError, TData>> & Pick<
+      DefinedInitialDataOptions<
+        Awaited<ReturnType<typeof getCase>>,
+        TError,
+        Awaited<ReturnType<typeof getCase>>
+      >, 'initialData'
+    >, request?: SecondParameter<typeof customInstance>
+  }
+  , queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetCase<TData = Awaited<ReturnType<typeof getCase>>, TError = unknown>(
- appId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCase>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getCase>>,
-          TError,
-          Awaited<ReturnType<typeof getCase>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+  appId: string, options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getCase>>, TError, TData>> & Pick<
+      UndefinedInitialDataOptions<
+        Awaited<ReturnType<typeof getCase>>,
+        TError,
+        Awaited<ReturnType<typeof getCase>>
+      >, 'initialData'
+    >, request?: SecondParameter<typeof customInstance>
+  }
+  , queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetCase<TData = Awaited<ReturnType<typeof getCase>>, TError = unknown>(
- appId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCase>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+  appId: string, options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getCase>>, TError, TData>>, request?: SecondParameter<typeof customInstance> }
+  , queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
 export function useGetCase<TData = Awaited<ReturnType<typeof getCase>>, TError = unknown>(
- appId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCase>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  appId: string, options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getCase>>, TError, TData>>, request?: SecondParameter<typeof customInstance> }
+  , queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetCaseQueryOptions(appId,options)
+  const queryOptions = getGetCaseQueryOptions(appId, options)
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
 
 export const invalidateGetCase = async (
- queryClient: QueryClient, appId: string, options?: InvalidateOptions
-  ): Promise<QueryClient> => {
+  queryClient: QueryClient, appId: string, options?: InvalidateOptions
+): Promise<QueryClient> => {
 
   await queryClient.invalidateQueries({ queryKey: getGetCaseQueryKey(appId) }, options);
 
@@ -235,7 +245,7 @@ export const invalidateGetCase = async (
 
 export const useSetGetCaseQueryData = () => {
   const queryClient = useQueryClient();
-  return (appId: string,updater: Awaited<ReturnType<typeof getCase>> | undefined | ((old: Awaited<ReturnType<typeof getCase>> | undefined) => Awaited<ReturnType<typeof getCase>> | undefined)) => {
+  return (appId: string, updater: Awaited<ReturnType<typeof getCase>> | undefined | ((old: Awaited<ReturnType<typeof getCase>> | undefined) => Awaited<ReturnType<typeof getCase>> | undefined)) => {
     queryClient.setQueryData(getGetCaseQueryKey(appId), updater);
   };
 }
@@ -248,44 +258,45 @@ export const useGetGetCaseQueryData = () => {
 
 
 export const listMyCases = (
-    params: ListMyCasesParams,
- options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+  params: ListMyCasesParams,
+  options?: SecondParameter<typeof customInstance>, signal?: AbortSignal
 ) => {
 
 
-      return customInstance<ResponsePageResultAppVO>(
-      {url: `/cases/my`, method: 'GET',
-        params, signal
+  return customInstance<ResponsePageResultAppVO>(
+    {
+      url: `/cases/my`, method: 'GET',
+      params: params.request, signal
     },
-      options);
-    }
+    options);
+}
 
 
 
 
 export const getListMyCasesQueryKey = (params?: ListMyCasesParams,) => {
-    return [
+  return [
     `/cases/my`, ...(params ? [params] : [])
-    ] as const;
-    }
+  ] as const;
+}
 
 
-export const getListMyCasesQueryOptions = <TData = Awaited<ReturnType<typeof listMyCases>>, TError = unknown>(params: ListMyCasesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyCases>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+export const getListMyCasesQueryOptions = <TData = Awaited<ReturnType<typeof listMyCases>>, TError = unknown>(params: ListMyCasesParams, options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyCases>>, TError, TData>>, request?: SecondParameter<typeof customInstance> }
 ) => {
 
-const {query: queryOptions, request: requestOptions} = options ?? {};
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getListMyCasesQueryKey(params);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMyCases>>> = ({ signal }) => listMyCases(params, requestOptions, signal);
+  const queryKey = queryOptions?.queryKey ?? getListMyCasesQueryKey(params);
 
 
 
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listMyCases>>> = ({ signal }) => listMyCases(params, requestOptions, signal);
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMyCases>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<Awaited<ReturnType<typeof listMyCases>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
 export type ListMyCasesQueryResult = NonNullable<Awaited<ReturnType<typeof listMyCases>>>
@@ -293,46 +304,50 @@ export type ListMyCasesQueryError = unknown
 
 
 export function useListMyCases<TData = Awaited<ReturnType<typeof listMyCases>>, TError = unknown>(
- params: ListMyCasesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyCases>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof listMyCases>>,
-          TError,
-          Awaited<ReturnType<typeof listMyCases>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+  params: ListMyCasesParams, options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyCases>>, TError, TData>> & Pick<
+      DefinedInitialDataOptions<
+        Awaited<ReturnType<typeof listMyCases>>,
+        TError,
+        Awaited<ReturnType<typeof listMyCases>>
+      >, 'initialData'
+    >, request?: SecondParameter<typeof customInstance>
+  }
+  , queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useListMyCases<TData = Awaited<ReturnType<typeof listMyCases>>, TError = unknown>(
- params: ListMyCasesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyCases>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof listMyCases>>,
-          TError,
-          Awaited<ReturnType<typeof listMyCases>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+  params: ListMyCasesParams, options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyCases>>, TError, TData>> & Pick<
+      UndefinedInitialDataOptions<
+        Awaited<ReturnType<typeof listMyCases>>,
+        TError,
+        Awaited<ReturnType<typeof listMyCases>>
+      >, 'initialData'
+    >, request?: SecondParameter<typeof customInstance>
+  }
+  , queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useListMyCases<TData = Awaited<ReturnType<typeof listMyCases>>, TError = unknown>(
- params: ListMyCasesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyCases>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+  params: ListMyCasesParams, options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyCases>>, TError, TData>>, request?: SecondParameter<typeof customInstance> }
+  , queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
 export function useListMyCases<TData = Awaited<ReturnType<typeof listMyCases>>, TError = unknown>(
- params: ListMyCasesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyCases>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  params: ListMyCasesParams, options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyCases>>, TError, TData>>, request?: SecondParameter<typeof customInstance> }
+  , queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getListMyCasesQueryOptions(params,options)
+  const queryOptions = getListMyCasesQueryOptions(params, options)
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
 
 export const invalidateListMyCases = async (
- queryClient: QueryClient, params: ListMyCasesParams, options?: InvalidateOptions
-  ): Promise<QueryClient> => {
+  queryClient: QueryClient, params: ListMyCasesParams, options?: InvalidateOptions
+): Promise<QueryClient> => {
 
   await queryClient.invalidateQueries({ queryKey: getListMyCasesQueryKey(params) }, options);
 
@@ -341,7 +356,7 @@ export const invalidateListMyCases = async (
 
 export const useSetListMyCasesQueryData = () => {
   const queryClient = useQueryClient();
-  return (params: ListMyCasesParams,updater: Awaited<ReturnType<typeof listMyCases>> | undefined | ((old: Awaited<ReturnType<typeof listMyCases>> | undefined) => Awaited<ReturnType<typeof listMyCases>> | undefined)) => {
+  return (params: ListMyCasesParams, updater: Awaited<ReturnType<typeof listMyCases>> | undefined | ((old: Awaited<ReturnType<typeof listMyCases>> | undefined) => Awaited<ReturnType<typeof listMyCases>> | undefined)) => {
     queryClient.setQueryData(getListMyCasesQueryKey(params), updater);
   };
 }

@@ -43,7 +43,7 @@ export const listAdminAppCases = (
 
       return customInstance<ResponsePageResultAppVO>(
       {url: `/admin/app-cases`, method: 'GET',
-        params, signal
+        params: params.request, signal
     },
       options);
     }

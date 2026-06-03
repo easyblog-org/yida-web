@@ -165,7 +165,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
       return customInstance<ResponsePageResultCommentVO>(
       {url: `/cases/${appId}/comments`, method: 'GET',
-        params, signal
+        params: params.request, signal
     },
       options);
     }
@@ -339,7 +339,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
       return customInstance<ResponsePageResultCommentVO>(
       {url: `/comments/${rootId}/replies`, method: 'GET',
-        params, signal
+        params: params.request, signal
     },
       options);
     }

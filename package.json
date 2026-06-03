@@ -1,6 +1,6 @@
 {
   "name": "yida",
-  "description": "Yida 易搭 AI 零代码应用生成平台前端",
+  "description": "易搭 AI 零代码应用生成平台前端",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -37,8 +37,8 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.2.2",
-    "@tanstack/devtools-vite": "^0.6.0",
-    "@tanstack/react-devtools": "^0.10.2",
+    "@tanstack/devtools-vite": "^0.6.1",
+    "@tanstack/react-devtools": "^0.10.5",
     "@tanstack/react-query-devtools": "^5.97.0",
     "@tanstack/react-router-devtools": "^1.166.11",
     "@tanstack/router-plugin": "^1.167.12",

@@ -419,7 +419,7 @@ export function HomePage() {
               即刻生成应用
             </h1>
 
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-500 sm:text-lg lg:text-lg">
+            <p className="mt-5 max-w-xl text-sm leading-relaxed text-slate-400 sm:text-base lg:text-base">
               从想法到上线，只需一次对话
             </p>
           </div>

@@ -279,7 +279,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
       return customInstance<ResponsePageResultAppVO>(
       {url: `/apps`, method: 'GET',
-        params, signal
+        params: params.request, signal
     },
       options);
     }
@@ -666,7 +666,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
       return customInstance<ResponseCursorResultAppChatMessageVO>(
       {url: `/apps/${appId}/messages`, method: 'GET',
-        params, signal
+        params: params.request, signal
     },
       options);
     }
@@ -1003,7 +1003,7 @@ export const listAppAuditRecords = (
 
       return customInstance<ResponsePageResultAuditRecordVO>(
       {url: `/apps/${appId}/audit-records`, method: 'GET',
-        params, signal
+        params: params.request, signal
     },
       options);
     }

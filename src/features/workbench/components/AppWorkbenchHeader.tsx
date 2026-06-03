@@ -1,4 +1,4 @@
-import yidaLogo from '@/assets/yida-logo.svg'
+import yidaLogo from '@/assets/yida-logo.png'
 import {
   downloadAppSourceCode,
   invalidateGetApp,
@@ -279,7 +279,7 @@ export function AppWorkbenchHeader({ app }: { app?: AppVO }) {
         >
           <img
             src={yidaLogo}
-            alt="Yida 易搭 Logo"
+            alt="易搭 Logo"
             className="h-full! w-full! max-w-full! object-contain"
           />
         </Link>

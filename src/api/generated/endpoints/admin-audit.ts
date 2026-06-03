@@ -330,7 +330,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
       return customInstance<ResponsePageResultAuditRecordVO>(
       {url: `/admin/audits`, method: 'GET',
-        params, signal
+        params: params.request, signal
     },
       options);
     }

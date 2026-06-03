@@ -2,17 +2,15 @@
 @import 'tailwindcss';
 
 @theme {
-  --animate-fade-in: fade-in 0.4s ease-out forwards;
+  --animate-fade-in: fade-in 0.25s ease-out forwards;
 }
 
 @keyframes fade-in {
   from {
     opacity: 0;
-    transform: translateY(12px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -20,6 +18,25 @@
   html, body, #root {
     background: transparent !important;
   }
+}
+
+/* ── View Transitions API：页面切换动画 ── */
+::view-transition-old(root) {
+  animation: 0.2s ease-in both vt-fade-out;
+}
+
+::view-transition-new(root) {
+  animation: 0.25s ease-out both vt-fade-in;
+}
+
+@keyframes vt-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes vt-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @layer components {

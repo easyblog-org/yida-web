@@ -42,7 +42,7 @@ export const listUsers = (
 
       return customInstance<ResponsePageResultUserVO>(
       {url: `/admin/users`, method: 'GET',
-        params, signal
+        params: params.request, signal
     },
       options);
     }

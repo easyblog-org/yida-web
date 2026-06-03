@@ -1,4 +1,5 @@
-import yidaLogo from '@/assets/yida-logo.svg'
+import yidaLogo from '@/assets/yida-logo.png'
+import yidaLogoText from '@/assets/yida-text.png'
 import { ArrowLeft, LogIn, UserPlus } from 'lucide-react'
 import { useLocation, useNavigate } from '@tanstack/react-router'
 import { Button, Flex, Layout, Tabs } from 'antd'
@@ -67,7 +68,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
                 alt="易搭 Logo"
                 className="h-20 w-20"
               />
-              <h1 className="m-0 text-[40px] font-semibold tracking-tight text-slate-950">Yida 易搭</h1>
+              <h1 className="m-0 text-[40px] font-semibold tracking-tight text-slate-950"><img src={yidaLogoText} alt="易搭" className="h-9" /></h1>
             </Flex>
             <p className="mb-0 mt-3 text-sm leading-6 text-slate-500 sm:text-[15px]">
               统一认证入口

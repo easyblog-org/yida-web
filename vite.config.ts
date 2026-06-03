@@ -26,6 +26,9 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  optimizeDeps: {
+    exclude: ['fsevents'],
+  },
   server: {
     // 开发环境通过 vite 服务器代理来处理跨域
     proxy: {

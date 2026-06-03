@@ -1,4 +1,4 @@
-import yidaLogo from '@/assets/yida-logo.svg'
+import yidaLogo from '@/assets/yida-logo.png'
 import { useLogout } from '@/api/generated/endpoints/auth'
 import { queryClient } from '@/libs/query-client'
 import { useAuthSessionStore } from '@/stores/auth-session'
@@ -280,7 +280,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             >
               <Text className="text-sm text-slate-400">
                 © {new Date().getFullYear()}{' '}
-                <Text className="font-medium text-slate-600">Yida 易搭 AI 零代码应用生成平台</Text>
+                <Text className="font-medium text-slate-600">易搭 AI 零代码应用生成平台</Text>
               </Text>
               <Text className="text-sm text-slate-300">·</Text>
               <Text className="text-sm text-slate-400">
