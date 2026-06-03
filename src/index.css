@@ -1,2 +1,38 @@
 @layer theme, base, antd, antdx, components, utilities;
 @import 'tailwindcss';
+
+@theme {
+  --animate-fade-in: fade-in 0.4s ease-out forwards;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer base {
+  html, body, #root {
+    background: transparent !important;
+  }
+}
+
+@layer components {
+  /* 覆盖 antd Layout.Content 内置 padding，缩小内容区左右间距 */
+  .ant-layout-content {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  @media (min-width: 640px) {
+    .ant-layout-content {
+      padding-left: 1.5rem !important;
+      padding-right: 1.5rem !important;
+    }
+  }
+}

@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
 import { App, Button, Dropdown, Layout, Menu } from 'antd'
 import type { MenuProps } from 'antd'
-import { ChevronDown, LogOut, ShieldCheck, User } from 'lucide-react'
+import { ChevronDown, LogOut, ShieldCheck, User, Zap } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 /**
@@ -122,7 +122,7 @@ export default function BasicLayout({ children }: { children: ReactNode }) {
     (location.pathname === '/' ? '/' : '')
 
   return (
-    <Layout className="min-h-screen">
+    <Layout className="!bg-transparent min-h-screen">
       <Layout.Header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 px-0 backdrop-blur-sm">
         <div className="mx-auto flex h-full max-w-7xl items-center px-4 sm:px-6 lg:px-8">
           <Link
@@ -195,7 +195,7 @@ export default function BasicLayout({ children }: { children: ReactNode }) {
           )}
         </div>
       </Layout.Header>
-      <Layout.Content className="p-8">
+      <Layout.Content>
         <div className="mx-auto w-full max-w-300">{children}</div>
       </Layout.Content>
       <Layout.Footer>
