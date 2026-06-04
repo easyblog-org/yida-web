@@ -17,8 +17,6 @@ import { AppAssistantMessageContent } from './AppAssistantMessageContent'
 import { AppConversationAvatar } from './AppConversationAvatar'
 import { AppConversationComposer } from './AppConversationComposer'
 
-const autoInitialChatAppIds = new Set<string>()
-
 const appConversationBubbleRoles = {
   assistant: {
     placement: 'start' as const,
@@ -139,6 +137,7 @@ function renderAppConversationMessageContent({
 export function AppConversation({ app }: { app: AppVO }) {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
   const shouldStickToBottomRef = useRef(true)
+  const autoInitialChatAppIdsRef = useRef(new Set<string>())
   const isSubmitting = useWorkbenchRuntimeStore((state) => state.isSubmitting)
   const isPreviewReady = useWorkbenchRuntimeStore((state) => state.isPreviewReady)
   const isVisualEditMode = useWorkbenchRuntimeStore((state) => state.isVisualEditMode)
@@ -195,18 +194,18 @@ export function AppConversation({ app }: { app: AppVO }) {
       !messagesQuery.isSuccess ||
       messagesQuery.messages.length > 0 ||
       isStreaming ||
-      autoInitialChatAppIds.has(appId)
+      autoInitialChatAppIdsRef.current.has(appId)
     ) {
       return
     }
 
     // 自动首轮只负责触发普通发送链路；防重记录避免空消息 refetch 后重复请求。
-    autoInitialChatAppIds.add(appId)
+    autoInitialChatAppIdsRef.current.add(appId)
 
     shouldStickToBottomRef.current = true
 
     if (!sendMessage(initialPrompt)) {
-      autoInitialChatAppIds.delete(appId)
+      autoInitialChatAppIdsRef.current.delete(appId)
     }
   }, [
     app.id,

@@ -1,8 +1,9 @@
 import { useGetApp } from '@/api/generated/endpoints/app'
 import type { AppVO } from '@/api/generated/models'
 import { useNavigate, useParams } from '@tanstack/react-router'
-import { useEffect } from 'react'
-import { Button, Layout, Result, Spin, Splitter } from 'antd'
+import { MessageSquare, MonitorPlay } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Button, Layout, Result, Spin, Splitter, Tabs } from 'antd'
 
 import { AppWorkbenchHeader } from '../components/AppWorkbenchHeader'
 import { AppWorkspacePanel } from '../components/AppWorkspacePanel'
@@ -16,6 +17,7 @@ export function AppWorkbenchPage() {
   const navigate = useNavigate()
   const { appId } = useParams({ from: '/workbench_/$appId' })
   const enterWorkbenchApp = useWorkbenchRuntimeStore((state) => state.enterApp)
+  const [activeTab, setActiveTab] = useState<'chat' | 'preview'>('chat')
   const appQuery = useGetApp<AppVO | undefined, { code?: number; message?: string }>(appId, {
     query: {
       retry: false,
@@ -90,18 +92,60 @@ export function AppWorkbenchPage() {
         <AppWorkbenchHeader app={appDetail} />
       </Layout.Header>
       <Layout.Content className="flex min-h-0 flex-1 flex-col overflow-hidden bg-white">
-        <Splitter className="h-full min-h-0 flex-1 overflow-hidden bg-white">
-          <Splitter.Panel
-            defaultSize={520}
-            min={320}
-            max="48%"
-          >
-            <AppConversation app={appDetail} />
-          </Splitter.Panel>
-          <Splitter.Panel min={420}>
-            <AppWorkspacePanel app={appDetail} />
-          </Splitter.Panel>
-        </Splitter>
+        {/* 桌面端：Splitter 双栏布局 */}
+        <div className="hidden h-full md:block">
+          <Splitter className="h-full min-h-0 flex-1 overflow-hidden bg-white">
+            <Splitter.Panel
+              defaultSize={520}
+              min={320}
+              max="48%"
+            >
+              <AppConversation app={appDetail} />
+            </Splitter.Panel>
+            <Splitter.Panel min={420}>
+              <AppWorkspacePanel app={appDetail} />
+            </Splitter.Panel>
+          </Splitter>
+        </div>
+
+        {/* 移动端：Tab 切换布局 */}
+        <div className="flex h-full flex-col md:hidden">
+          <Tabs
+            activeKey={activeTab}
+            onChange={(key) => setActiveTab(key as 'chat' | 'preview')}
+            className="flex-1 min-h-0 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav]:px-3 [&_.ant-tabs-tab]:px-4! [&_.ant-tabs-tab]:py-2.5! [&_.ant-tabs-content-holder]:!flex [&_.ant-tabs-content-holder]:!min-h-0 [&_.ant-tabs-content]:!h-full [&_.ant-tabs-tabpane]:!h-full"
+            items={[
+              {
+                key: 'chat',
+                label: (
+                  <span className="inline-flex items-center gap-1.5 text-sm font-medium">
+                    <MessageSquare className="size-4" />
+                    对话
+                  </span>
+                ),
+                children: (
+                  <div className="h-full overflow-hidden">
+                    <AppConversation app={appDetail} />
+                  </div>
+                ),
+              },
+              {
+                key: 'preview',
+                label: (
+                  <span className="inline-flex items-center gap-1.5 text-sm font-medium">
+                    <MonitorPlay className="size-4" />
+                    预览
+                  </span>
+                ),
+                children: (
+                  <div className="h-full overflow-hidden">
+                    <AppWorkspacePanel app={appDetail} />
+                  </div>
+                ),
+              },
+            ]}
+          />
+        </div>
       </Layout.Content>
     </Layout>
   )

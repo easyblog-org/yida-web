@@ -121,6 +121,7 @@ export function FeaturedCasesSection() {
   const [hasMore, setHasMore] = useState(true)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [initialLoadingDone, setInitialLoadingDone] = useState(false)
+  const [isTransitioning, setIsTransitioning] = useState(false)
 
   // ─ 根据分类标签生成搜索关键词（"全部"时不传 keyword） ──
   const searchKeyword = activeCategory === 'all'
@@ -128,6 +129,7 @@ export function FeaturedCasesSection() {
     : CATEGORY_TABS.find((t) => t.value === activeCategory)?.label
 
   // ── Refs ──
+  const sectionRef = useRef<HTMLElement>(null)
   const isLoadingMoreRef = useRef(false)
   const prevCountRef = useRef(0)
 
@@ -205,17 +207,35 @@ export function FeaturedCasesSection() {
     setIsLoadingMore(false)
     setInitialLoadingDone(false)
     prevCountRef.current = 0
+
+    // 切换筛选时触发过渡动画
+    setIsTransitioning(true)
+
+    // 移动端点击筛选标签后，自动将案例广场区域滚动到页面顶部（考虑固定导航栏高度）
+    if (sectionRef.current && window.innerWidth < 768) {
+      const navHeight = 56
+      const top = sectionRef.current.getBoundingClientRect().top + window.scrollY - navHeight
+      window.scrollTo({ behavior: 'smooth', top })
+    }
   }
+
+  // 数据加载完成后关闭过渡动画（带短暂延迟让淡入效果可见）
+  useEffect(() => {
+    if (isTransitioning && initialLoadingDone) {
+      const timer = setTimeout(() => setIsTransitioning(false), 50)
+      return () => clearTimeout(timer)
+    }
+  }, [isTransitioning, initialLoadingDone])
 
   // ── 判断卡片是否做淡入动画（所有卡片都做，DOM 复用不会重复播放） ──
   const shouldAnimate = (_index: number) => true
 
   /* ───────── 骨架屏 ──────── */
   const renderSkeleton = () => (
-    <div className="grid grid-cols-2 gap-5 sm:grid-cols-3">
+    <div className="grid grid-cols-2 gap-2.5 sm:gap-5 sm:grid-cols-3">
       {Array.from({ length: 8 }).map((_, i) => (
         <div key={i} className="overflow-hidden rounded-xl border border-slate-200/70 bg-white">
-          <Skeleton.Node active className="aspect-video! w-full! rounded-none!" />
+          <Skeleton.Node active className="max-md:aspect-[9/16] aspect-video! w-full! rounded-none!" />
           <div className="space-y-2.5 p-4">
             <Skeleton.Node active className="h-4! w-3/5! rounded-md!" />
             <Skeleton.Node active className="h-3.5! w-2/5! rounded-md!" />
@@ -229,10 +249,12 @@ export function FeaturedCasesSection() {
   if (query.isLoading && !initialLoadingDone) {
     return (
       <section
+        ref={sectionRef}
         className="relative z-10 w-full mt-4"
+        style={{ marginLeft: 'calc(-50vw + 50%)', width: '100vw' }}
       >
-        <div className="overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-sm">
-          <div className="px-6 py-6 sm:px-10 sm:py-8">
+        <div className="overflow-hidden rounded-none rounded-t-3xl border-y-0 border-slate-200/60 bg-transparent shadow-none max-md:bg-white/50 max-md:backdrop-blur-sm sm:rounded-3xl sm:border sm:bg-white sm:shadow-sm">
+          <div className="px-3 py-4 sm:px-6 sm:py-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <h2 className="text-xl font-bold text-slate-950 sm:text-2xl">案例广场</h2>
@@ -252,11 +274,12 @@ export function FeaturedCasesSection() {
 
     return (
       <section
-        className="relative z-10 mb-2 min-h-[100vh] px-4 sm:px-6 lg:px-8"
+        ref={sectionRef}
+        className="relative z-10 mb-2 min-h-[60vh] sm:min-h-[100vh]"
         style={{ marginLeft: 'calc(-50vw + 50%)', width: '100vw' }}
       >
-        <div className="overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-sm">
-          <div className="px-4 py-4 sm:px-6 sm:py-6">
+        <div className="overflow-hidden rounded-none rounded-t-3xl border-y-0 border-slate-200/60 bg-transparent shadow-none max-md:bg-white/50 max-md:backdrop-blur-sm sm:rounded-3xl sm:border sm:bg-white sm:shadow-sm">
+          <div className="px-3 py-4 sm:px-6 sm:py-6">
 
             {/* ─ 标题行 ── */}
             <div className="flex items-center justify-between">
@@ -295,7 +318,7 @@ export function FeaturedCasesSection() {
 
             {isEmpty && (
               /* ── 空状态 ─ */
-              <div className="mt-16 flex flex-col items-center justify-center text-center">
+              <div className={`mt-16 flex flex-col items-center justify-center text-center transition-all duration-300 ${isTransitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'}`}>
                 <div className="relative">
                   <svg width="120" height="96" viewBox="0 0 120 96" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <rect x="20" y="36" width="80" height="52" rx="4" stroke="#CBD5E1" strokeWidth="2" fill="#F8FAFC" />
@@ -339,12 +362,13 @@ export function FeaturedCasesSection() {
 
   return (
     <section
-      className="relative z-10 mb-2 min-h-[100vh] px-4 sm:px-6 lg:px-8"
+      ref={sectionRef}
+      className="relative z-10 mb-2 min-h-[75vh] px-0 sm:px-8"
       style={{ marginLeft: 'calc(-50vw + 50%)', width: '100vw' }}
     >
-      {/* ====== 白色大卡片容器 ====== */}
-      <div className="overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-sm">
-        <div className="px-4 py-4 sm:px-6 sm:py-6">
+      {/* ====== 白色容器（移动端无边框无圆角，卡片直接铺满） ====== */}
+      <div className="overflow-hidden rounded-none border-y-0 border-slate-200/60 bg-transparent shadow-none max-md:bg-white/50 max-md:backdrop-blur-sm sm:rounded-3xl sm:border sm:bg-white sm:shadow-sm">
+        <div className="px-3 py-4 sm:px-6 sm:py-6 min-h-[70vh]">
 
           {/* ─ 标题行 ── */}
           <div className="flex items-center justify-between">
@@ -363,16 +387,16 @@ export function FeaturedCasesSection() {
           <div className="mt-5 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
             <SortDropdown value={sortBy} onChange={setSortBy} />
 
-            {/* 分类标签滚动容器 */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+            {/* 分类标签滚动容器（秒哒风格：隐藏滚动条 + 方块标签） */}
+            <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide pb-1 sm:pb-0">
               {CATEGORY_TABS.map((tab) => (
                 <button
                   key={tab.value}
                   type="button"
                   onClick={() => handleCategoryChange(tab.value)}
-                  className={`shrink-0 cursor-pointer rounded-full px-3.5 py-1.5 text-sm font-medium transition-all duration-200 ${activeCategory === tab.value
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800'
+                  className={`shrink-0 cursor-pointer rounded-lg px-3 py-[5px] text-sm font-medium transition-all duration-200 active:scale-[0.96] ${activeCategory === tab.value
+                    ? 'bg-indigo-50 text-indigo-600 ring-1 ring-inset ring-indigo-200'
+                    : 'bg-slate-100/80 text-slate-500 hover:bg-slate-200/60 hover:text-slate-700'
                     }`}
                 >
                   {tab.label}
@@ -421,8 +445,8 @@ export function FeaturedCasesSection() {
             </div>
           ) : (
             <>
-              {/* ── 卡片网格 ── */}
-              <div className="mt-6 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-3">
+              {/* ── 卡片网格（移动端接近铺满，小间距） ── */}
+              <div className={`mt-6 grid grid-cols-2 gap-2.5 sm:gap-5 sm:grid-cols-3 lg:grid-cols-3 transition-all duration-300 ${isTransitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'}`}>
                 {allCases.map((app, index) => {
                   const title = app.name?.trim() || '未命名应用'
                   const authorName = app.author?.nickname?.trim() || '未知作者'
@@ -452,7 +476,7 @@ export function FeaturedCasesSection() {
                       }
                     >
                       {/* ── 封面图（16:9 宽屏比例） ─ */}
-                      <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300">
+                      <div className="relative max-md:aspect-[9/16] aspect-video overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300">
                         <img
                           src={coverUrl}
                           alt={`${title}封面`}

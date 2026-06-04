@@ -323,22 +323,22 @@ export function HomePage() {
 
   return (
     <>
-      <main className="relative min-h-[calc(100vh-10rem)] overflow-hidden">
+      <main className="relative max-h-[calc(100vh-10rem)] overflow-hidden">
         <div className="pointer-events-none fixed inset-0 -z-10">
           {/* 基础渐变 */}
           <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/40 via-white to-sky-50/40" />
 
-          {/* 顶部大光晕 */}
-          <div className="absolute left-1/2 top-0 h-[1000px] w-[1000px] -translate-x-1/2 rounded-full bg-gradient-to-br from-indigo-300/15 via-violet-300/10 to-transparent blur-[200px]" />
+          {/* 顶部大光晕（移动端缩小以提升性能） */}
+          <div className="absolute left-1/2 top-0 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-gradient-to-br from-indigo-300/15 via-violet-300/10 to-transparent blur-[150px] sm:h-[1000px] sm:w-[1000px] sm:blur-[200px]" />
 
           {/* 右上光晕 */}
-          <div className="absolute -right-48 -top-20 h-[800px] w-[800px] rounded-full bg-gradient-to-l from-sky-300/15 via-blue-300/10 to-transparent blur-[180px]" />
+          <div className="absolute -right-48 -top-20 h-[500px] w-[500px] rounded-full bg-gradient-to-l from-sky-300/15 via-blue-300/10 to-transparent blur-[120px] sm:h-[800px] sm:w-[800px] sm:blur-[180px]" />
 
           {/* 左侧中部暖色光晕 */}
-          <div className="absolute -left-48 top-1/4 h-[700px] w-[700px] rounded-full bg-gradient-to-r from-rose-300/10 via-purple-300/10 to-transparent blur-[180px]" />
+          <div className="absolute -left-48 top-1/4 h-[400px] w-[400px] rounded-full bg-gradient-to-r from-rose-300/10 via-purple-300/10 to-transparent blur-[120px] sm:h-[700px] sm:w-[700px] sm:blur-[180px]" />
 
           {/* 底部光晕 */}
-          <div className="absolute -bottom-48 left-1/4 h-[700px] w-[900px] rounded-full bg-gradient-to-t from-indigo-400/15 via-violet-400/10 to-transparent blur-[200px]" />
+          <div className="absolute -bottom-48 left-1/4 h-[400px] w-[500px] rounded-full bg-gradient-to-t from-indigo-400/15 via-violet-400/10 to-transparent blur-[120px] sm:h-[700px] sm:w-[900px] sm:blur-[200px]" />
         </div>
 
         {isCreateAppBusy ? (
@@ -406,9 +406,9 @@ export function HomePage() {
           </div>
         ) : null}
 
-        <section className="relative mx-auto flex min-h-[83.5vh] max-w-5xl flex-col items-center justify-center px-4 pt-8 pb-6 sm:pt-6">
+        <section className="relative mx-auto flex min-h-[70vh] sm:min-h-[75vh] max-w-5xl flex-col items-center justify-center px-4 pt-8 pb-6 sm:min-h-[83.5vh] sm:pt-6">
           <div className="flex flex-col items-center text-center">
-            <h1 className="mt-6 max-w-3xl text-balance text-4xl font-extrabold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl lg:text-6xl xl:text-[3.75rem]">
+            <h1 className="mt-6 max-w-3xl text-balance text-2xl font-extrabold leading-[1.15] tracking-tight text-slate-900 sm:text-4xl lg:text-6xl xl:text-[3.75rem]">
               说出想法，
               <span className="relative mx-2 inline-block">
                 <span className="relative bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">
@@ -484,7 +484,7 @@ export function HomePage() {
               </div>
             </div>
 
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <div className="mt-4 flex items-center justify-center gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-x-visible">
               {quickTags.map((tag) => (
                 <button
                   key={tag.label}
@@ -495,7 +495,7 @@ export function HomePage() {
                       setPrompt(tag.prompt)
                     }
                   }}
-                  className="cursor-pointer rounded-full border border-slate-200/70 bg-white/80 px-4 py-1.5 text-sm text-slate-600 shadow-sm backdrop-blur-sm transition-all duration-200 hover:border-indigo-200 hover:bg-white hover:text-indigo-600 hover:shadow-md active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="shrink-0 cursor-pointer rounded-full border border-slate-200/70 bg-white/80 px-4 py-1.5 text-sm text-slate-600 shadow-sm backdrop-blur-sm transition-all duration-200 hover:border-indigo-200 hover:bg-white hover:text-indigo-600 hover:shadow-md active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {tag.label}
                 </button>

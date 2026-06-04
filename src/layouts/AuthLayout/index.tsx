@@ -2,7 +2,7 @@ import yidaLogo from '@/assets/yida-logo.png'
 import yidaLogoText from '@/assets/yida-text.png'
 import { ArrowLeft, LogIn, UserPlus } from 'lucide-react'
 import { useLocation, useNavigate } from '@tanstack/react-router'
-import { Button, Flex, Layout, Tabs } from 'antd'
+import { Button, Layout, Tabs } from 'antd'
 import type { TabsProps } from 'antd'
 import type { ReactNode } from 'react'
 
@@ -39,6 +39,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
 
   return (
     <Layout className="min-h-screen bg-white">
+      {/* 返回按钮 */}
       <Button
         type="text"
         icon={<ArrowLeft />}
@@ -48,63 +49,63 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         返回首页
       </Button>
 
-      <Layout.Content className="relative flex justify-center px-6 pb-14 pt-20 sm:px-8 sm:pb-16 sm:pt-22">
-        <Flex
-          vertical
-          className="w-full max-w-100 pt-[2vh] sm:pt-[4vh]"
-        >
-          <Flex
-            vertical
-            align="center"
-            className="mb-8 text-center"
-          >
-            <Flex
-              align="center"
-              justify="center"
-              gap={12}
-            >
+      {/* 主内容区：移动端垂直居中，桌面端正常流式布局 */}
+      <Layout.Content
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: window.innerWidth < 768 ? 'center' : 'flex-start',
+          padding: 0,
+          minHeight: '88vh',
+        }}
+        className="!px-8 !pb-10 !pt-18 sm:!px-8 sm:!pb-16 sm:!pt-22"
+      >
+        <div className="w-full max-w-[400px]">
+          {/* Logo + 标题 */}
+          <div className="mb-8 text-center">
+            <div className="mb-4 flex items-center justify-center gap-3">
               <img
                 src={yidaLogo}
                 alt="易搭 Logo"
-                className="h-20 w-20"
+                className="h-12 w-12 sm:h-20 sm:w-20"
               />
-              <h1 className="m-0 text-[40px] font-semibold tracking-tight text-slate-950"><img src={yidaLogoText} alt="易搭" className="h-9" /></h1>
-            </Flex>
-            <p className="mb-0 mt-3 text-sm leading-6 text-slate-500 sm:text-[15px]">
+              <h1 className="m-0 text-xl font-semibold tracking-tight text-slate-950 sm:text-[40px]">
+                <img src={yidaLogoText} alt="易搭" className="h-5 sm:h-9" />
+              </h1>
+            </div>
+            <p className="m-0 text-sm leading-6 text-slate-500">
               统一认证入口
             </p>
-          </Flex>
+          </div>
 
-          <Flex
-            vertical
-            flex="1"
-            className="min-h-105 px-1 sm:min-h-108 sm:px-0"
-          >
-            <Tabs
-              activeKey={activeTabKey}
-              centered
-              size="large"
-              items={AUTH_TABS}
-              tabBarGutter={32}
-              onChange={handleTabChange}
-            />
+          {/* Tab 切换 */}
+          <Tabs
+            activeKey={activeTabKey}
+            centered
+            size="large"
+            items={AUTH_TABS}
+            tabBarGutter={32}
+            onChange={handleTabChange}
+          />
 
-            <div className="mt-6 flex-1">{children}</div>
-          </Flex>
-        </Flex>
+          {/* 表单内容 */}
+          <div className="mt-5">{children}</div>
+        </div>
       </Layout.Content>
 
-      <Layout.Footer className="relative bg-transparent px-6 pb-8 pt-0 text-center text-xs leading-6 text-slate-400 sm:text-sm">
+      {/* 底部版权 */}
+      <Layout.Footer className="bg-transparent px-6 pb-8 pt-0 text-center text-xs leading-6 text-slate-400 sm:text-sm">
         <p>易搭低代码应用生成系统</p>
         <p>
           Designed by{' '}
           <a
-            href="https://github.com/ymz6"
+            href="https://www.xinxinnote.tech/"
             target="_blank"
             rel="noreferrer"
             className="text-sky-500 no-underline hover:text-sky-600"
           >
-            ymz
+            Xinxinnote Tech
           </a>
         </p>
       </Layout.Footer>

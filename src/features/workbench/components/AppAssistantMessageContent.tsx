@@ -133,11 +133,17 @@ function AppAssistantMarkdown({
       className={className}
       openLinksInNewTab
       escapeRawHtml
-      streaming={{
-        hasNextChunk,
-        enableAnimation: hasNextChunk,
-        tail: hasNextChunk,
-      }}
+      streaming={hasNextChunk ? {
+        hasNextChunk: true,
+        enableAnimation: true,
+        tail: { component: StreamingTail },
+      } : undefined}
     />
+  )
+}
+
+function StreamingTail() {
+  return (
+    <span className="inline-block ml-0.5 size-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-500 align-middle" />
   )
 }
