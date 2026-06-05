@@ -79,7 +79,18 @@ export function PreviewContent({ appId, errorMessage }: { appId?: string; errorM
   }
 
   const emptyErrorMessage = errorMessage ?? previewSessionErrorMessage
-  const emptyErrorTitle = !errorMessage && previewSessionErrorMessage ? '预览加载失败' : undefined
+  const isResourceNotFound = /不存在|未生成|暂无|not found|not generated/i.test(
+    emptyErrorMessage ?? '',
+  )
+  const emptyErrorTitle = (() => {
+    if (errorMessage) {
+      return undefined
+    }
+    if (previewSessionErrorMessage) {
+      return isResourceNotFound ? '预览尚未就绪' : '预览加载失败'
+    }
+    return undefined
+  })()
 
   useEffect(() => {
     if (

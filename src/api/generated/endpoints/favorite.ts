@@ -609,7 +609,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
       return customInstance<ResponsePageResultAppVO>(
       {url: `/favorites/${favoriteId}/apps`, method: 'GET',
-        params, signal
+        params: params.request, signal
     },
       options);
     }

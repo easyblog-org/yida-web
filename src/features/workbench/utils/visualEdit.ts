@@ -17,7 +17,7 @@ export interface ParsedVisualEditPrompt {
   sourceLocation: VisualEditSourceLocation
 }
 
-const VISUAL_EDIT_BLOCK_PATTERN = /<zhida-visual-edit>\s*([\s\S]*?)\s*<\/zhida-visual-edit>/i
+const VISUAL_EDIT_BLOCK_PATTERN = /<yida-visual-edit>\s*([\s\S]*?)\s*<\/yida-visual-edit>/i
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === 'object' && !Array.isArray(value))
@@ -88,9 +88,9 @@ export function buildVisualEditPrompt(requirement: string, element: VisualEditEl
 修改需求：
 ${requirement.trim()}
 
-<zhida-visual-edit>
+<yida-visual-edit>
 ${JSON.stringify(visualEditPayload, null, 2)}
-</zhida-visual-edit>`
+</yida-visual-edit>`
 }
 
 export function parseVisualEditPrompt(content: string | undefined): ParsedVisualEditPrompt | null {

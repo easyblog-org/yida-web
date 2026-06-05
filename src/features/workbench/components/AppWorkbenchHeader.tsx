@@ -1,4 +1,4 @@
-import zhidaLogo from '@/assets/zhida-logo.svg'
+import yidaLogo from '@/assets/yida-logo.png'
 import {
   downloadAppSourceCode,
   invalidateGetApp,
@@ -11,7 +11,7 @@ import { useAuthSessionStore } from '@/stores/auth-session'
 import { useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
-import { App, Button, Dropdown, Popover } from 'antd'
+import { App, Button, Dropdown, Modal } from 'antd'
 import { Download, ExternalLink, MoreHorizontal, Rocket, SendHorizontal, Undo2 } from 'lucide-react'
 import type { MenuProps } from 'antd'
 
@@ -43,6 +43,7 @@ export function AppWorkbenchHeader({ app }: { app?: AppVO }) {
   const isDeployed = Boolean(app?.deployKey?.trim())
   const isAuthor = Boolean(currentUser?.id && app?.author?.id && currentUser.id === app.author.id)
   const isAuditPending = app?.auditStatus === APP_AUDIT_STATUS.PENDING
+  const [deployInfoModalOpen, setDeployInfoModalOpen] = useState(false)
   const canSubmitAudit = Boolean(
     appId &&
     isAuthor &&
@@ -54,6 +55,9 @@ export function AppWorkbenchHeader({ app }: { app?: AppVO }) {
   const deployedAtText = app?.deployedAt ? app.deployedAt.replace('T', ' ').slice(0, 19) : '-'
 
   const deployMutation = useDeployApp<{ message?: string }>({
+    request: {
+      timeout: 300000,
+    },
     mutation: {
       onSuccess: async (_response, variables) => {
         message.success('部署成功')
@@ -124,8 +128,16 @@ export function AppWorkbenchHeader({ app }: { app?: AppVO }) {
       return
     }
 
-    if (!isDeployed) {
-      deployMutation.mutate({ appId })
+    if (isDeployed) {
+      setDeployInfoModalOpen(true)
+      return
+    }
+
+    deployMutation.mutate({ appId })
+  }
+
+  const handleRedeploy = () => {
+    if (!appId) {
       return
     }
 
@@ -134,6 +146,7 @@ export function AppWorkbenchHeader({ app }: { app?: AppVO }) {
       content: '重新部署会更新当前应用的线上访问版本。',
       okText: '重新部署',
       cancelText: '取消',
+      okButtonProps: { danger: true },
       onOk: () => deployMutation.mutateAsync({ appId }),
     })
   }
@@ -172,6 +185,11 @@ export function AppWorkbenchHeader({ app }: { app?: AppVO }) {
       return
     }
 
+    if (key === 'redeploy') {
+      handleRedeploy()
+      return
+    }
+
     if (key === 'submit-audit') {
       handleSubmitAudit()
       return
@@ -194,29 +212,44 @@ export function AppWorkbenchHeader({ app }: { app?: AppVO }) {
       ),
       label: isDownloading ? '正在下载' : '下载源码',
     },
+    ...(isDeployed
+      ? [
+        {
+          key: 'redeploy' as const,
+          disabled: !appId || deployMutation.isPending,
+          icon: (
+            <Rocket
+              className="size-4"
+              aria-hidden="true"
+            />
+          ),
+          label: '重新部署',
+        },
+      ]
+      : []),
     isAuditPending
       ? {
-          key: 'withdraw-audit',
-          disabled: !canWithdrawAudit || withdrawAuditMutation.isPending,
-          icon: (
-            <Undo2
-              className="size-4"
-              aria-hidden="true"
-            />
-          ),
-          label: withdrawAuditMutation.isPending ? '正在撤回' : '撤回审核',
-        }
+        key: 'withdraw-audit',
+        disabled: !canWithdrawAudit || withdrawAuditMutation.isPending,
+        icon: (
+          <Undo2
+            className="size-4"
+            aria-hidden="true"
+          />
+        ),
+        label: withdrawAuditMutation.isPending ? '正在撤回' : '撤回审核',
+      }
       : {
-          key: 'submit-audit',
-          disabled: !canSubmitAudit || submitAuditMutation.isPending,
-          icon: (
-            <SendHorizontal
-              className="size-4"
-              aria-hidden="true"
-            />
-          ),
-          label: submitAuditMutation.isPending ? '正在提交' : '提交审核',
-        },
+        key: 'submit-audit',
+        disabled: !canSubmitAudit || submitAuditMutation.isPending,
+        icon: (
+          <SendHorizontal
+            className="size-4"
+            aria-hidden="true"
+          />
+        ),
+        label: submitAuditMutation.isPending ? '正在提交' : '提交审核',
+      },
   ]
 
   const deployButton = (
@@ -275,8 +308,8 @@ export function AppWorkbenchHeader({ app }: { app?: AppVO }) {
           title="返回首页"
         >
           <img
-            src={zhidaLogo}
-            alt="Yida 易搭 Logo"
+            src={yidaLogo}
+            alt="易搭 Logo"
             className="h-full! w-full! max-w-full! object-contain"
           />
         </Link>
@@ -288,17 +321,17 @@ export function AppWorkbenchHeader({ app }: { app?: AppVO }) {
       </div>
 
       <div className="flex items-center gap-2">
-        {isDeployed ? (
-          <Popover
-            title="部署信息"
-            content={deployInfoContent}
-            placement="bottomRight"
-          >
-            {deployButton}
-          </Popover>
-        ) : (
-          deployButton
-        )}
+        {deployButton}
+
+        <Modal
+          title="部署信息"
+          open={deployInfoModalOpen}
+          onCancel={() => setDeployInfoModalOpen(false)}
+          footer={null}
+          width={400}
+        >
+          {deployInfoContent}
+        </Modal>
 
         <Dropdown
           menu={{ items: moreMenuItems, onClick: handleMoreMenuClick }}

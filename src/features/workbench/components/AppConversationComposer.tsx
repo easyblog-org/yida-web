@@ -14,6 +14,8 @@ const composerActionButtonClassName =
 const composerInactiveActionButtonClassName = `${composerActionButtonClassName} bg-white! text-slate-700! hover:bg-white! hover:text-slate-900!`
 const composerActiveActionButtonClassName = `${composerActionButtonClassName} bg-slate-900! text-white! hover:bg-slate-800! hover:text-white!`
 
+const MAX_PROMPT_LENGTH = 1000
+
 export function AppConversationComposer({
   isSubmitEnabled,
   isSubmitting,
@@ -32,6 +34,12 @@ export function AppConversationComposer({
   onSubmitMessage: (prompt: string) => boolean
 }) {
   const [prompt, setPrompt] = useState('')
+
+  const handlePromptChange = (v: string) => {
+    setPrompt(v.length > MAX_PROMPT_LENGTH ? v.slice(0, MAX_PROMPT_LENGTH) : v)
+  }
+
+  const isOverLimit = prompt.length >= MAX_PROMPT_LENGTH
 
   const isComposerDisabled = Boolean(isSubmitting || !isSubmitEnabled)
   const isPromptEmpty = prompt.trim().length === 0
@@ -107,35 +115,44 @@ export function AppConversationComposer({
     }
   }
 
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' && !event.shiftKey && !isSendDisabled) {
+      event.preventDefault()
+      handleSubmit(prompt)
+    }
+  }
+
   return (
-    <div className="relative shrink-0 bg-white px-4 pt-3 pb-4">
-      <div className="pointer-events-none absolute inset-x-0 -top-5 h-5 bg-linear-to-b from-white/0 to-white" />
+    <div className="relative shrink-0 bg-gradient-to-b from-white via-white to-slate-50/50 px-4 pt-3 pb-4 shadow-[0_-4px_24px_rgba(0,0,0,0.03)]">
+      <div className="pointer-events-none absolute inset-x-0 -top-5 h-5 bg-gradient-to-b from-white/0 via-white/80 to-white" />
       {isVisualEditMode && (
-        <div className="relative z-10 mb-2 flex min-h-11 min-w-0 items-center gap-2.5 rounded-2xl border border-slate-200/70 bg-slate-50/95 px-4 py-2 text-sm text-slate-600 shadow-sm shadow-slate-950/8">
+        <div className="relative z-10 mb-2.5 flex min-h-11 min-w-0 items-center gap-2.5 rounded-2xl border border-indigo-200/60 bg-gradient-to-r from-indigo-50/80 to-purple-50/60 px-4 py-2 text-sm text-indigo-700 shadow-sm shadow-indigo-500/5 backdrop-blur-sm">
           <Crosshair
-            className="size-4 shrink-0 text-indigo-500/80"
+            className="size-4 shrink-0 text-indigo-500"
             aria-hidden="true"
           />
           {selectedVisualEditElement && selectedVisualEditSourceLocation ? (
             <>
-              <span className="shrink-0 text-slate-600">已选中元素</span>
-              <span className="shrink-0 rounded-md border border-slate-200 bg-white px-2 py-1 font-mono text-xs leading-4 text-slate-700">
+              <span className="shrink-0 font-medium text-indigo-600">已选中元素</span>
+              <span className="shrink-0 rounded-md border border-indigo-200/60 bg-white/90 px-2 py-1 font-mono text-xs leading-4 text-indigo-700 shadow-sm">
                 {`<${selectedVisualEditElement.tag}>`}
               </span>
-              <span className="ml-auto min-w-0 truncate font-mono text-sm text-slate-500">
+              <span className="ml-auto min-w-0 truncate font-mono text-sm text-indigo-500/70">
                 {selectedVisualEditSourceLocation.filePath}
                 {selectedVisualEditLineText}
               </span>
             </>
           ) : (
-            <span className="min-w-0 truncate text-slate-600">等待选择预览元素</span>
+            <span className="min-w-0 truncate text-indigo-600/80">等待选择预览元素</span>
           )}
         </div>
       )}
       <Sender
         value={prompt}
-        onChange={(v) => setPrompt(v)}
+        onChange={handlePromptChange}
         onSubmit={handleSubmit}
+        submitType="enter"
+        onKeyDown={handleKeyDown}
         disabled={isComposerDisabled}
         loading={isSubmitting}
         autoSize={{ minRows: 1, maxRows: 6 }}
@@ -146,12 +163,15 @@ export function AppConversationComposer({
               : '先在右侧预览选择元素，再描述修改需求'
             : '描述想生成或调整的地方，可以一步一步完善生成效果'
         }
-        className="relative z-10 rounded-3xl! border-0! bg-slate-100! px-3! pt-3! pb-2! shadow-none!"
+        className={`relative z-10 rounded-[20px]! px-4 pt-3.5 pb-3 shadow-[0_2px_12px_rgba(99,102,241,0.06),inset_0_1px_2px_rgba(255,255,255,0.8)] transition-all duration-300 ${isOverLimit
+          ? 'border-2 border-red-400! bg-red-50/30!'
+          : 'border border-slate-200/80 bg-gradient-to-b from-white to-slate-50/30 hover:border-indigo-200/60 hover:shadow-[0_4px_16px_rgba(99,102,241,0.1),inset_0_1px_2px_rgba(255,255,255,0.9)] focus-within:border-indigo-300/80 focus-within:shadow-[0_4px_20px_rgba(99,102,241,0.15),0_0_0_3px_rgba(99,102,241,0.08)'
+          }`}
         classNames={{
           content: 'items-start!',
           input:
-            'min-h-10! bg-transparent! px-1! py-0! text-base! leading-7! text-slate-800! placeholder:text-slate-400!',
-          footer: 'mt-2!',
+            'min-h-10! bg-transparent! px-1! py-0! text-[15px]! leading-[1.75]! text-slate-800! placeholder:text-slate-400! placeholder:font-light!',
+          footer: 'mt-2.5!',
         }}
         suffix={false}
         footer={
@@ -180,6 +200,11 @@ export function AppConversationComposer({
                   </Button>
                 </span>
               </Tooltip>
+              {prompt.length > 0 && (
+                <span className={`text-xs tabular-nums ${isOverLimit ? 'font-medium text-red-500' : 'text-slate-400'}`}>
+                  {prompt.length}/{MAX_PROMPT_LENGTH}
+                </span>
+              )}
             </div>
             <Tooltip title={sendTooltipTitle}>
               <span className="inline-flex">
@@ -193,11 +218,11 @@ export function AppConversationComposer({
                   aria-label="发送消息"
                   icon={
                     <ArrowUp
-                      className="size-5"
+                      className="size-4"
                       aria-hidden="true"
                     />
                   }
-                  className="size-10! shrink-0! border-0! bg-slate-950! text-white! shadow-sm! shadow-slate-950/20! transition-all hover:bg-slate-800! disabled:bg-slate-300!"
+                  className={`size-9! shrink-0! rounded-full! border-0! shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:scale-105 hover:shadow-lg active:scale-95 ${isSendDisabled ? 'cursor-not-allowed! bg-slate-200! text-slate-400! shadow-none!' : 'bg-slate-950! text-white! shadow-slate-950/20! hover:bg-slate-800! hover:shadow-slate-950/30!'}`}
                 />
               </span>
             </Tooltip>

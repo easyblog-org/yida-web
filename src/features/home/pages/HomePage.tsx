@@ -2,8 +2,15 @@ import type { CreateAppRequest, CreateAppStreamMessage } from '@/api/generated/m
 import { useAuthSessionStore } from '@/stores/auth-session'
 import { EventStreamContentType, fetchEventSource } from '@microsoft/fetch-event-source'
 import { useNavigate } from '@tanstack/react-router'
-import { App, Button, Input, Steps } from 'antd'
-import { ArrowUp, Compass, Sparkles } from 'lucide-react'
+import { App, Button, Input } from 'antd'
+import {
+  ArrowUp,
+  Code2,
+  Shield,
+  Sparkles,
+  WandSparkles,
+  Zap,
+} from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { FeaturedCasesSection } from '../components/FeaturedCasesSection'
 import { useTypewriterPlaceholder } from '../hooks/useTypewriterPlaceholder'
@@ -127,7 +134,6 @@ export function HomePage() {
         return
       }
 
-      // 创建成功后进入对应应用工作台，后续生成过程由工作台承接展示。
       await navigate({
         to: '/workbench/$appId',
         params: { appId },
@@ -239,7 +245,7 @@ export function HomePage() {
           setCreateAppCurrentStep(streamMessage.step)
           setCreateAppStreamMessage(
             streamMessage.message?.trim() ||
-              createAppSteps[createAppStepIndexMap[streamMessage.step]].description,
+            createAppSteps[createAppStepIndexMap[streamMessage.step]].description,
           )
 
           if (streamMessage.step === 'DONE') {
@@ -309,127 +315,202 @@ export function HomePage() {
     }
   }
 
+  const quickTags = [
+    { label: '企业官网', prompt: '生成一个现代企业官网，采用深色科技风格，包含：首页（全屏 Hero 区域 + 核心数据展示）、产品/服务展示页（卡片式布局 + 悬停动效）、关于我们（团队介绍 + 发展历程时间轴）、新闻动态（文章列表 + 分类筛选）、联系我们（表单验证 + 地图嵌入）。要求响应式设计，支持暗色模式切换，导航栏固定顶部带滚动变色效果。' },
+    { label: '个人博客', prompt: '创建一个个人技术博客系统，功能包括：首页（精选文章轮播 + 热门标签云）、文章列表（分页 + 搜索 + 分类/标签多维度筛选）、文章详情页（Markdown 渲染 + 目录导航 + 代码高亮 + 阅读进度条）、关于页面（个人信息卡片 + 技能图谱 + 社交链接）。支持文章点赞收藏评论，侧边栏显示最近文章和归档，整体采用极简阅读优先的排版设计。' },
+    { label: '数据仪表板', prompt: '开发一个数据可视化仪表板后台，包含：顶部统计卡片区（今日访问量、活跃用户、收入趋势等关键指标 + 同比环比对比）、中部图表区（折线图展示趋势、柱状图对比分析、饼图占比分布、地图热力图）、数据表格区（可排序筛选导出的数据列表 + 行内编辑功能）。左侧可折叠菜单导航，支持主题色自定义和数据刷新频率设置。' },
+  ]
+
   return (
-    <main className="relative min-h-[calc(100vh-10rem)] overflow-hidden py-10 sm:py-12">
-      {isCreateAppBusy ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-white/70 bg-white/95 p-6 text-center shadow-2xl shadow-slate-950/20">
-            <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-sky-50 text-sky-600 ring-8 ring-sky-50/70">
-              <Sparkles
-                className="size-6 animate-pulse"
-                aria-hidden="true"
-              />
-            </div>
-            <div className="mt-5 text-base font-semibold text-slate-950">
-              {createAppStatus === 'success'
-                ? '应用创建成功，正在进入工作台'
-                : '应用创建中，请不要离开此页面'}
-            </div>
-            <div className="mt-2 text-sm leading-6 text-slate-500">
-              {createAppStatus === 'success'
-                ? '稍等片刻，马上为你打开应用工作台。'
-                : currentCreateAppMessage}
-            </div>
-            <Steps
-              orientation="vertical"
-              current={createAppCurrentStepIndex}
-              status={createAppStatus === 'success' ? 'finish' : 'process'}
-              items={createAppStepItems}
-              className="mx-auto mt-6 max-w-xs text-left"
-            />
-          </div>
-        </div>
-      ) : null}
-      {/* Background Blobs */}
-      <div className="pointer-events-none absolute inset-0 -z-10 flex justify-center">
-        <div className="absolute top-0 left-1/4 h-96 w-96 rounded-full bg-sky-400/20 mix-blend-multiply blur-3xl" />
-        <div className="absolute top-20 right-1/4 h-96 w-96 rounded-full bg-blue-400/20 mix-blend-multiply blur-3xl" />
-        <div className="absolute -bottom-32 left-1/3 h-96 w-96 rounded-full bg-cyan-400/20 mix-blend-multiply blur-3xl" />
-      </div>
+    <>
+      <main className="relative max-h-[calc(100vh-10rem)] overflow-hidden">
+        <div className="pointer-events-none fixed inset-0 -z-10">
+          {/* 基础渐变 */}
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/40 via-white to-sky-50/40" />
 
-      <section className="relative mx-auto flex min-h-124 max-w-5xl flex-col items-center justify-center text-center">
-        {/* Floating Mini UI/Code Decorators */}
-        <div className="pointer-events-none absolute top-10 -left-12 hidden flex-col gap-2 rounded-2xl border border-slate-200/50 bg-white/40 p-3 shadow-lg shadow-sky-900/5 backdrop-blur-md lg:flex">
-          <div className="flex items-center gap-2">
-            <div className="size-2.5 rounded-full bg-rose-400" />
-            <div className="size-2.5 rounded-full bg-amber-400" />
-            <div className="size-2.5 rounded-full bg-emerald-400" />
-          </div>
-          <div className="mt-2 h-2 w-24 rounded-full bg-slate-200" />
-          <div className="h-2 w-16 rounded-full bg-slate-200" />
-          <div className="h-2 w-20 rounded-full bg-slate-200" />
+          {/* 顶部大光晕（移动端缩小以提升性能） */}
+          <div className="absolute left-1/2 top-0 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-gradient-to-br from-indigo-300/15 via-violet-300/10 to-transparent blur-[150px] sm:h-[1000px] sm:w-[1000px] sm:blur-[200px]" />
+
+          {/* 右上光晕 */}
+          <div className="absolute -right-48 -top-20 h-[500px] w-[500px] rounded-full bg-gradient-to-l from-sky-300/15 via-blue-300/10 to-transparent blur-[120px] sm:h-[800px] sm:w-[800px] sm:blur-[180px]" />
+
+          {/* 左侧中部暖色光晕 */}
+          <div className="absolute -left-48 top-1/4 h-[400px] w-[400px] rounded-full bg-gradient-to-r from-rose-300/10 via-purple-300/10 to-transparent blur-[120px] sm:h-[700px] sm:w-[700px] sm:blur-[180px]" />
+
+          {/* 底部光晕 */}
+          <div className="absolute -bottom-48 left-1/4 h-[400px] w-[500px] rounded-full bg-gradient-to-t from-indigo-400/15 via-violet-400/10 to-transparent blur-[120px] sm:h-[700px] sm:w-[900px] sm:blur-[200px]" />
         </div>
 
-        <div className="pointer-events-none absolute top-24 -right-8 hidden rounded-2xl border border-slate-200/50 bg-white/40 p-4 shadow-lg shadow-sky-900/5 backdrop-blur-md lg:block">
-          <div className="flex items-center gap-3">
-            <div className="size-8 rounded-full bg-blue-100 flex items-center justify-center">
-              <Compass className="size-4 text-blue-500" />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <div className="h-2 w-16 rounded-full bg-slate-300" />
-              <div className="h-2 w-10 rounded-full bg-slate-200" />
-            </div>
-          </div>
-        </div>
-
-        <h1 className="flex items-center justify-center gap-3 text-balance font-['Microsoft_YouYuan','YouYuan','幼圆','Microsoft_YaHei_UI',sans-serif] text-4xl font-semibold leading-tight text-slate-950 sm:text-5xl lg:text-6xl">
-          <Sparkles className="size-8 text-sky-500 sm:size-12" />
-          说出想法，生成应用
-        </h1>
-        <p className="mt-3 max-w-2xl font-['JetBrains_Mono','Fira_Code','Menlo','Monaco','Consolas',monospace] text-sm leading-7 text-slate-600 sm:text-base">
-          Create wonderful code, build a wonderful world
-        </p>
-
-        <div className="group relative mt-9 w-full max-w-3xl overflow-hidden rounded-4xl bg-slate-200/60 p-0.5 shadow-xl shadow-sky-900/5 transition-all duration-300 focus-within:shadow-2xl focus-within:shadow-sky-500/10">
-          {/* 彩虹层只露出外层 2px padding，内侧由纯白输入面板完全遮住。 */}
-          <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 ease-out group-focus-within:opacity-100">
-            <div className="absolute top-1/2 left-1/2 aspect-square w-[120%] -translate-x-1/2 -translate-y-1/2">
-              <div className="h-full w-full animate-[spin_4.5s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#38bdf8,#6366f1,#d946ef,#f97316,#facc15,#22c55e,#06b6d4,#38bdf8)]" />
-            </div>
-          </div>
-
-          <div className="relative z-10 h-full w-full rounded-[calc(2rem-2px)] bg-white px-4 py-3 text-left">
-            <label
-              htmlFor="home-app-prompt"
-              className="sr-only"
-            >
-              应用需求
-            </label>
-            <TextArea
-              id="home-app-prompt"
-              variant="borderless"
-              autoSize={{ minRows: 2, maxRows: 8 }}
-              maxLength={4000}
-              disabled={isCreateAppBusy}
-              value={prompt}
-              onChange={(event) => setPrompt(event.target.value)}
-              placeholder={promptPlaceholder}
-              className="max-h-56 min-h-18 resize-none rounded-3xl px-2! pt-1! text-base! leading-7! text-slate-800! placeholder:text-slate-400!"
-            />
-
-            <div className="mt-1 flex justify-end">
-              <Button
-                htmlType="button"
-                type="primary"
-                shape="circle"
-                loading={isCreateAppBusy}
-                disabled={isCreateAppBusy}
-                onClick={handleCreateApp}
-                aria-label="生成应用"
-                icon={
-                  <ArrowUp
-                    className="size-5"
+        {isCreateAppBusy ? (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4 backdrop-blur-md">
+            <div className="w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-white/[0.97] shadow-2xl shadow-black/10 backdrop-blur-xl">
+              <div className="h-1 w-full bg-gradient-to-r from-blue-500 via-violet-500 to-purple-500" />
+              <div className="p-8 text-center">
+                <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 ring-1 ring-blue-100/80">
+                  <Sparkles
+                    className="size-7 animate-pulse text-blue-600"
                     aria-hidden="true"
                   />
-                }
-                className="size-10! border-0! bg-linear-to-r from-sky-500 to-blue-600 shadow-md transition-all hover:-translate-y-0.5 hover:scale-105 hover:opacity-90"
-              />
+                </div>
+                <div className="mt-6 text-lg font-semibold tracking-tight text-slate-900">
+                  {createAppStatus === 'success'
+                    ? '应用创建成功'
+                    : '正在为你构建应用'}
+                </div>
+                <p className="mt-2 text-sm leading-relaxed text-slate-500">
+                  {createAppStatus === 'success'
+                    ? '即将跳转到工作台页面...'
+                    : currentCreateAppMessage}
+                </p>
+                <div className="mt-6 space-y-3 text-left">
+                  {createAppStepItems.map((item, idx) => (
+                    <div
+                      key={item.title}
+                      className={`flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors ${idx === createAppCurrentStepIndex
+                        ? 'bg-blue-50/80'
+                        : idx < createAppCurrentStepIndex
+                          ? ''
+                          : 'opacity-40'
+                        }`}
+                    >
+                      <div
+                        className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${idx < createAppCurrentStepIndex
+                          ? 'bg-emerald-500 text-white'
+                          : idx === createAppCurrentStepIndex
+                            ? 'bg-blue-500 text-white animate-pulse'
+                            : 'bg-slate-200 text-slate-400'
+                          }`}
+                      >
+                        {idx < createAppCurrentStepIndex ? (
+                          <svg className="size-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        ) : (
+                          idx + 1
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className={`text-sm font-medium ${idx <= createAppCurrentStepIndex ? 'text-slate-900' : 'text-slate-400'
+                          }`}>
+                          {item.title}
+                        </div>
+                        {idx === createAppCurrentStepIndex && (
+                          <div className="mt-0.5 text-xs text-blue-600">{item.content}</div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
-      {/* 精选案例 */}
+        ) : null}
+
+        <section className="relative mx-auto flex min-h-[70vh] sm:min-h-[75vh] max-w-5xl flex-col items-center justify-center px-4 pt-8 pb-6 sm:min-h-[83.5vh] sm:pt-6">
+          <div className="flex flex-col items-center text-center">
+            <h1 className="mt-6 max-w-3xl text-balance text-2xl font-extrabold leading-[1.15] tracking-tight text-slate-900 sm:text-4xl lg:text-6xl xl:text-[3.75rem]">
+              说出想法，
+              <span className="relative mx-2 inline-block">
+                <span className="relative bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">
+                  AI
+                </span>
+                <span className="absolute -inset-x-2 -bottom-1 h-3 bg-blue-500/10 blur-xl -z-10 rounded-full" />
+              </span>
+              即刻生成应用
+            </h1>
+
+            <p className="mt-5 max-w-xl text-sm leading-relaxed text-slate-400 sm:text-base lg:text-base">
+              从想法到上线，只需一次对话
+            </p>
+          </div>
+
+          <div className="mt-10 w-full max-w-3xl">
+            <div className="group relative">
+              <div className="absolute -inset-1 rounded-[1.75rem] bg-gradient-to-r from-blue-500/20 via-violet-500/20 to-purple-500/20 opacity-0 blur-lg transition-opacity duration-500 group-focus-within:opacity-100" />
+
+              <div className="relative overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-[0_8px_32px_-8px_rgba(0,0,0,0.06),0_2px_8px_-2px_rgba(0,0,0,0.04)] transition-all duration-300 group-focus-within:border-indigo-300/50 group-focus-within:shadow-[0_8px_32px_-8px_rgba(99,102,241,0.1),0_2px_8px_-2px_rgba(0,0,0,0.04)]">
+                <div className="relative z-10 px-5 py-4 sm:px-6 sm:py-5">
+                  <label htmlFor="home-app-prompt" className="sr-only">应用需求</label>
+                  <TextArea
+                    id="home-app-prompt"
+                    variant="borderless"
+                    autoSize={{ minRows: 3, maxRows: 8 }}
+                    maxLength={4000}
+                    disabled={isCreateAppBusy}
+                    value={prompt}
+                    onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt(event.target.value)}
+                    onPressEnter={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+                      if (!e.shiftKey) {
+                        e.preventDefault()
+                        if (!isCreateAppBusy && prompt.trim()) {
+                          handleCreateApp()
+                        }
+                      }
+                    }}
+                    placeholder={promptPlaceholder}
+                    className="max-h-56 min-h-28 resize-none px-0! pt-1! text-[15px]! leading-[1.85]! text-slate-800! placeholder:text-slate-400! sm:text-base!"
+                  />
+
+                  <div className="mt-2.5 flex items-center justify-between border-t border-slate-100/80 pt-3">
+                    <button
+                      type="button"
+                      onClick={() => message.info('提示词优化功能正在开发中，敬请期待')}
+                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-slate-200/70 bg-white/80 px-3 py-1.5 text-sm text-slate-500 shadow-sm backdrop-blur-sm transition-all duration-200 hover:border-indigo-200 hover:bg-white hover:text-indigo-600 hover:shadow-md active:scale-[0.97]"
+                    >
+                      <WandSparkles className="size-3.5" aria-hidden="true" />
+                      优化
+                    </button>
+                    <Button
+                      htmlType="button"
+                      type="primary"
+                      shape="circle"
+                      loading={isCreateAppBusy}
+                      disabled={isCreateAppBusy || !prompt.trim()}
+                      onClick={handleCreateApp}
+                      aria-label="生成应用"
+                      icon={
+                        <ArrowUp
+                          className="size-4"
+                          aria-hidden="true"
+                        />
+                      }
+                      className={`size-10! shrink-0! rounded-full! border-0! shadow-md transition-all duration-300 ${prompt.trim()
+                        ? 'bg-slate-950! text-white! shadow-slate-900/25! hover:-translate-y-0.5 hover:scale-105 hover:bg-slate-800! hover:shadow-lg active:scale-95!'
+                        : 'cursor-not-allowed! bg-slate-200! text-slate-400! shadow-none!'
+                        }`}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 flex items-center justify-center gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-x-visible">
+              {quickTags.map((tag) => (
+                <button
+                  key={tag.label}
+                  type="button"
+                  disabled={isCreateAppBusy}
+                  onClick={() => {
+                    if (!isCreateAppBusy) {
+                      setPrompt(tag.prompt)
+                    }
+                  }}
+                  className="shrink-0 cursor-pointer rounded-full border border-slate-200/70 bg-white/80 px-4 py-1.5 text-sm text-slate-600 shadow-sm backdrop-blur-sm transition-all duration-200 hover:border-indigo-200 hover:bg-white hover:text-indigo-600 hover:shadow-md active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {tag.label}
+                </button>
+              ))}
+            </div>
+
+            <p className="mt-3 text-center text-xs text-slate-400">
+              按 Enter 发送 · Shift+Enter 换行
+            </p>
+          </div>
+
+        </section>
+      </main>
+
       <FeaturedCasesSection />
-    </main>
+    </>
   )
 }

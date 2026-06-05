@@ -179,7 +179,7 @@ export function AdminUsersPage() {
             <Avatar
               src={record.avatar}
               alt={displayName}
-              className="shrink-0 bg-slate-900! text-xs! font-semibold!"
+              className="shrink-0 bg-slate-100! text-xs! font-semibold!"
             >
               {getUserDisplayInitial(record)}
             </Avatar>

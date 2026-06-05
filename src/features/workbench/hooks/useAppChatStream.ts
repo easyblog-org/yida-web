@@ -82,6 +82,8 @@ export function useAppChatStream(appId?: string) {
     return () => {
       isMountedRef.current = false
       abortControllerRef.current?.abort()
+      setIsStreaming(false)
+      setStreamingMessages([])
       setGenerating(false)
       setSubmitting(false)
     }

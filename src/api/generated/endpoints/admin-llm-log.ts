@@ -44,7 +44,7 @@ export const listLlmLogs = (
 
       return customInstance<ResponsePageResultLlmLogVO>(
       {url: `/admin/llm-logs`, method: 'GET',
-        params, signal
+        params: params.request, signal
     },
       options);
     }
@@ -150,7 +150,7 @@ export const getLlmLogOverview = (
 
       return customInstance<ResponseLlmLogOverviewVO>(
       {url: `/admin/llm-logs/overview`, method: 'GET',
-        params, signal
+        params: params.request, signal
     },
       options);
     }

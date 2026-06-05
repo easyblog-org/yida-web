@@ -42,8 +42,8 @@ export function CasesSquarePage() {
   const total = Number(casesQuery.data?.total ?? 0)
 
   return (
-    <main className="space-y-6">
-      <header>
+    <main className="space-y-6 mt-10">
+      {/* <header>
         <h1 className="m-0 flex items-center gap-3 text-3xl font-semibold text-slate-950">
           <span className="flex size-10 items-center justify-center rounded-full bg-sky-100 text-sky-600">
             <Compass className="size-5" />
@@ -53,7 +53,7 @@ export function CasesSquarePage() {
         <p className="mt-2 text-sm leading-6 text-slate-500">
           浏览优秀应用案例，发现可复用的搭建思路。
         </p>
-      </header>
+      </header> */}
 
       <section className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <Input

@@ -220,7 +220,7 @@ export function ProfileFollowUsersSection({
                     <Avatar
                       size={44}
                       src={targetUser.avatar}
-                      className="shrink-0 bg-slate-900!"
+                      className="shrink-0 bg-slate-100!"
                     >
                       {displayInitial}
                     </Avatar>
