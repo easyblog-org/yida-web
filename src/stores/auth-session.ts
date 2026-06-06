@@ -1,4 +1,5 @@
 import type { UserVO } from '@/api/generated/models'
+import { proxyCdnUrls } from '@/api/mutator/custom-instance'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
@@ -15,8 +16,8 @@ export const useAuthSessionStore = create<AuthSessionState>()(
     (set) => ({
       accessToken: null,
       user: null,
-      setSession: ({ accessToken, user }) => set({ accessToken, user }),
-      setUser: (user) => set({ user }),
+      setSession: ({ accessToken, user }) => set({ accessToken, user: proxyCdnUrls(user) }),
+      setUser: (user) => set({ user: proxyCdnUrls(user) }),
       clearSession: () => set({ accessToken: null, user: null }),
     }),
     {
