@@ -10,6 +10,28 @@ interface ApiResponse<T = unknown> {
   data?: T
 }
 
+const CDN_ORIGIN = 'http://tfuvj8a9x.hn-bkt.clouddn.com'
+
+/** 递归转换响应数据中的 HTTP CDN URL 为代理路径，避免 HTTPS 页面的 Mixed Content 问题 */
+function proxyCdnUrls<T>(data: T): T {
+  if (typeof data === 'string') {
+    return (data.startsWith(CDN_ORIGIN)
+      ? data.replace(CDN_ORIGIN, '/cdn-proxy')
+      : data) as T
+  }
+  if (Array.isArray(data)) {
+    return data.map(proxyCdnUrls) as T
+  }
+  if (data && typeof data === 'object') {
+    const result = {} as Record<string, unknown>
+    for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
+      result[key] = proxyCdnUrls(value)
+    }
+    return result as T
+  }
+  return data
+}
+
 export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api'
 
 export const AXIOS_INSTANCE = axios.create({
@@ -98,7 +120,7 @@ export const customInstance = <T>(
   const promise = AXIOS_INSTANCE({
     ...config,
     ...options,
-  }).then(({ data }: AxiosResponse<T>) => data)
+  }).then(({ data }: AxiosResponse<T>) => proxyCdnUrls(data))
 
   return promise
 }
