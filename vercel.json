@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "http://121.40.163.80:9000/yida/:path*"
+    }
+  ]
+}

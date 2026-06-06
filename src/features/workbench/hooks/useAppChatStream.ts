@@ -1,4 +1,5 @@
 import type { ChatStreamMessage } from '@/api/generated/models'
+import { apiBaseUrl } from '@/api/mutator/custom-instance'
 import { queryClient } from '@/libs/query-client'
 import { router } from '@/libs/router'
 import { useAuthSessionStore } from '@/stores/auth-session'
@@ -147,7 +148,7 @@ export function useAppChatStream(appId?: string) {
 
       void (async () => {
         try {
-          await fetchEventSource(`/api/apps/${appId}/chat-stream`, {
+          await fetchEventSource(`${apiBaseUrl}/apps/${appId}/chat-stream`, {
             method: 'POST',
             headers: {
               Accept: EventStreamContentType,
@@ -195,9 +196,9 @@ export function useAppChatStream(appId?: string) {
                 messages.map((item) =>
                   item.id === assistantMessageId
                     ? {
-                        ...item,
-                        content: `${item.content ?? ''}${streamMessage.c}`,
-                      }
+                      ...item,
+                      content: `${item.content ?? ''}${streamMessage.c}`,
+                    }
                     : item,
                 ),
               )
@@ -215,9 +216,9 @@ export function useAppChatStream(appId?: string) {
             messages.map((item) =>
               item.id === assistantMessageId
                 ? {
-                    ...item,
-                    status: streamReturnedErrorContent ? 'failed' : 'completed',
-                  }
+                  ...item,
+                  status: streamReturnedErrorContent ? 'failed' : 'completed',
+                }
                 : item,
             ),
           )
@@ -253,12 +254,12 @@ export function useAppChatStream(appId?: string) {
             messages.map((item) =>
               item.id === assistantMessageId
                 ? {
-                    ...item,
-                    status: 'failed',
-                    content:
-                      item.content ||
-                      getAppChatStreamErrorMessage(error, 'AI 回复失败，请稍后重试。'),
-                  }
+                  ...item,
+                  status: 'failed',
+                  content:
+                    item.content ||
+                    getAppChatStreamErrorMessage(error, 'AI 回复失败，请稍后重试。'),
+                }
                 : item,
             ),
           )

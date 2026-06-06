@@ -37,7 +37,7 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
         ws: true,
-        rewrite: (path) => path.replace(/^\/api/, '/yida'),
+        rewrite: (path: string) => path.replace(/^\/api/, '/yida'),
       }
     },
   },
