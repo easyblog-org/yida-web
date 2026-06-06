@@ -10,8 +10,10 @@ interface ApiResponse<T = unknown> {
   data?: T
 }
 
+export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api'
+
 export const AXIOS_INSTANCE = axios.create({
-  baseURL: '/api',
+  baseURL: apiBaseUrl,
   timeout: 15000,
 })
 

@@ -1,4 +1,5 @@
 import type { CreateAppRequest, CreateAppStreamMessage } from '@/api/generated/models'
+import { apiBaseUrl } from '@/api/mutator/custom-instance'
 import { useAuthSessionStore } from '@/stores/auth-session'
 import { EventStreamContentType, fetchEventSource } from '@microsoft/fetch-event-source'
 import { useNavigate } from '@tanstack/react-router'
@@ -185,7 +186,7 @@ export function HomePage() {
     setCreateAppStreamMessage('正在创建应用')
 
     try {
-      await fetchEventSource('/api/apps', {
+      await fetchEventSource(`${apiBaseUrl}/apps`, {
         method: 'POST',
         headers: {
           accept: EventStreamContentType,
