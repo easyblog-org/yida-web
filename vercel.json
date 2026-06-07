@@ -24,7 +24,7 @@
       "destination": "http://121.40.163.80:9000/d/:path*"
     },
     {
-      "source": "/((?!api|cdn-proxy|d|_next|_vercel|.*\\.).*)",
+      "source": "/((?!api/|cdn-proxy/|d/|_next/|_vercel/|.*\\.).*)",
       "destination": "/index.html"
     }
   ]
