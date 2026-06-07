@@ -20,7 +20,11 @@
       "destination": "http://tfuvj8a9x.hn-bkt.clouddn.com/:path*"
     },
     {
-      "source": "/((?!api|cdn-proxy|_next|_vercel|.*\\.).*)",
+      "source": "/d/:path*",
+      "destination": "http://121.40.163.80:9000/d/:path*"
+    },
+    {
+      "source": "/((?!api|cdn-proxy|d|_next|_vercel|.*\\.).*)",
       "destination": "/index.html"
     }
   ]

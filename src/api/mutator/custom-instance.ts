@@ -15,9 +15,10 @@ const CDN_ORIGIN = 'http://tfuvj8a9x.hn-bkt.clouddn.com'
 /** 递归转换响应数据中的 HTTP CDN URL 为代理路径，避免 HTTPS 页面的 Mixed Content 问题 */
 export function proxyCdnUrls<T>(data: T): T {
   if (typeof data === 'string') {
-    return (data.startsWith(CDN_ORIGIN)
-      ? data.replace(CDN_ORIGIN, '/cdn-proxy')
-      : data) as T
+    if (data.startsWith(CDN_ORIGIN)) {
+      return data.replace(CDN_ORIGIN, '/cdn-proxy') as T
+    }
+    return data
   }
   if (Array.isArray(data)) {
     return data.map(proxyCdnUrls) as T
