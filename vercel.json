@@ -12,16 +12,16 @@
   ],
   "rewrites": [
     {
+      "source": "/d/(.*)",
+      "destination": "http://121.40.163.80:9000/d/$1"
+    },
+    {
       "source": "/api/:path*",
       "destination": "http://121.40.163.80:9000/yida/:path*"
     },
     {
       "source": "/cdn-proxy/:path*",
       "destination": "http://tfuvj8a9x.hn-bkt.clouddn.com/:path*"
-    },
-    {
-      "source": "/d/:path*",
-      "destination": "http://121.40.163.80:9000/d/:path*"
     },
     {
       "source": "/((?!api/|cdn-proxy/|d/|_next/|_vercel/|.*\\.).*)",
