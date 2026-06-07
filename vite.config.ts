@@ -38,7 +38,12 @@ export default defineConfig({
         secure: false,
         ws: true,
         rewrite: (path: string) => path.replace(/^\/api/, '/yida'),
-      }
+      },
+      '/d': {
+        target: 'http://localhost:9000',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 })
