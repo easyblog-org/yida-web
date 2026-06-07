@@ -12,7 +12,8 @@ interface ApiResponse<T = unknown> {
 
 const CDN_ORIGIN = 'http://tfuvj8a9x.hn-bkt.clouddn.com'
 
-/** 递归转换响应数据中的 HTTP CDN URL 为代理路径，避免 HTTPS 页面的 Mixed Content 问题 */
+/** 递归转换响应数据中的 HTTP CDN URL 为代理路径，避免 HTTPS 页面的 Mixed Content 问题
+ * 仅在数据发生变更时才创建新对象，避免不必要的对象拷贝 */
 export function proxyCdnUrls<T>(data: T): T {
   if (typeof data === 'string') {
     if (data.startsWith(CDN_ORIGIN)) {
@@ -21,14 +22,25 @@ export function proxyCdnUrls<T>(data: T): T {
     return data
   }
   if (Array.isArray(data)) {
-    return data.map(proxyCdnUrls) as T
+    let changed = false
+    const result = data.map((item) => {
+      const newItem = proxyCdnUrls(item)
+      if (newItem !== item) changed = true
+      return newItem
+    })
+    return changed ? (result as T) : data
   }
   if (data && typeof data === 'object') {
+    let changed = false
     const result = {} as Record<string, unknown>
     for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
-      result[key] = proxyCdnUrls(value)
+      const newValue = proxyCdnUrls(value)
+      if (newValue !== value) {
+        changed = true
+      }
+      result[key] = newValue
     }
-    return result as T
+    return changed ? (result as T) : data
   }
   return data
 }

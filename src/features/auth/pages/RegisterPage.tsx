@@ -29,7 +29,7 @@ export function RegisterPage() {
       requiredMark={false}
       scrollToFirstError
       onFinish={(values) => void handleFinish(values)}
-      className="flex h-full w-full flex-col [&_.ant-form-item]:mb-5 [&_.ant-input]:pb-[13px]"
+      className="flex h-full w-full flex-col [&_.ant-form-item]:mb-5 max-md:[&_.ant-input]:pb-[13px]"
     >
       <Form.Item
         name="account"
