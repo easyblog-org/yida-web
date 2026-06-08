@@ -121,6 +121,11 @@ AXIOS_INSTANCE.interceptors.response.use(
       }
     }
 
+    // React Query 取消请求（切换 tab / 组件卸载）时静默处理，不打印错误
+    if (error.name === 'CanceledError' || error.code === 'ERR_CANCELED') {
+      return Promise.reject(error)
+    }
+
     console.error('[HTTP Error]', error)
 
     return Promise.reject(responseData ?? error)
