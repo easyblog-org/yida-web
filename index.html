@@ -11,10 +11,14 @@
 <body>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
-  <!-- vConsole for mobile debugging -->
-  <script src="https://unpkg.com/vconsole@3.15.1/dist/vconsole.min.js"></script>
+  <!-- vConsole: only in dev mode -->
   <script>
-    try { new VConsole(); } catch (e) { console.warn('vConsole load failed', e); }
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || location.port === '5173') {
+      var s = document.createElement('script');
+      s.src = 'https://unpkg.com/vconsole@3.15.1/dist/vconsole.min.js';
+      s.onload = function () { try { new VConsole(); } catch (e) { console.warn(e); } };
+      document.body.appendChild(s);
+    }
   </script>
 </body>
 
