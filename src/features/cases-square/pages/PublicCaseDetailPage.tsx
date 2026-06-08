@@ -48,8 +48,10 @@ export function PublicCaseDetailPage() {
   const app = caseQuery.data
 
   return (
-    <main className="grid h-screen grid-cols-[minmax(0,1fr)_400px] gap-3 overflow-hidden p-3">
-      <PublicCasePreviewFrame deployUrl={app.deployUrl} />
+    <main className="grid h-screen w-full grid-cols-[minmax(0,1fr)_400px] gap-3 overflow-hidden p-3 max-md:grid-cols-1 max-md:h-auto max-md:overflow-visible max-md:p-0">
+      <div className="flex w-full max-md:h-[100dvh]">
+        <PublicCasePreviewFrame deployUrl={app.deployUrl} />
+      </div>
       <aside className="flex min-h-0 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white">
         <PublicCaseInfoPanel app={app} />
         <PublicCaseCommentsSection appId={appId} />

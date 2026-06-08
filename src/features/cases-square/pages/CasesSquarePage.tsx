@@ -1,7 +1,7 @@
 import { useListCases } from '@/api/generated/endpoints/case'
 import type { ListCasesRequest, PageResultAppVO } from '@/api/generated/models'
 import { keepPreviousData } from '@tanstack/react-query'
-import { Alert, Button, Empty, Input, Pagination, Select, Skeleton } from 'antd'
+import { Alert, Button, Empty, Input, Pagination, Select, Spin } from 'antd'
 import { Compass, Search } from 'lucide-react'
 import { useState } from 'react'
 
@@ -42,7 +42,7 @@ export function CasesSquarePage() {
   const total = Number(casesQuery.data?.total ?? 0)
 
   return (
-    <main className="space-y-6 mt-10">
+    <main className="space-y-6 mt-4 max-md:mt-0">
       {/* <header>
         <h1 className="m-0 flex items-center gap-3 text-3xl font-semibold text-slate-950">
           <span className="flex size-10 items-center justify-center rounded-full bg-sky-100 text-sky-600">
@@ -55,29 +55,32 @@ export function CasesSquarePage() {
         </p>
       </header> */}
 
-      <section className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <Input
-          allowClear
-          size="large"
-          prefix={<Search className="size-4 text-slate-400" />}
-          placeholder="搜索案例"
-          value={keyword}
-          onChange={(event) => {
-            setKeyword(event.target.value)
-            setCurrentPage(1)
-          }}
-          className="h-12 min-w-0 flex-1 rounded-full! px-5! shadow-sm shadow-slate-900/5"
-        />
-        <Select
-          size="large"
-          value={filter}
-          options={CASE_FILTER_OPTIONS}
-          onChange={(value: CaseFilterValue) => {
-            setFilter(value)
-            setCurrentPage(1)
-          }}
-          className="h-12 w-full rounded-full! [--ant-select-border-radius:9999px] [--ant-select-height:48px] [--ant-select-padding-horizontal:20px] sm:w-28"
-        />
+      {/* ── 搜索 & 筛选栏 ── */}
+      <section className="space-y-3">
+        <div className="flex items-center gap-2.5">
+          <Input
+            allowClear
+            size="large"
+            prefix={<Search className="size-[18px] text-slate-400" />}
+            placeholder="搜索案例名称或关键词..."
+            value={keyword}
+            onChange={(event) => {
+              setKeyword(event.target.value)
+              setCurrentPage(1)
+            }}
+            className="min-w-0 flex-1 rounded-xl! px-4! max-md:h-11! sm:h-12 sm:px-5! shadow-sm shadow-slate-900/5 max-md:[&_.ant-input]:pb-[13px]"
+          />
+          <Select
+            size="large"
+            value={filter}
+            options={CASE_FILTER_OPTIONS}
+            onChange={(value: CaseFilterValue) => {
+              setFilter(value)
+              setCurrentPage(1)
+            }}
+            className="shrink-0 rounded-xl! [--ant-select-border-radius:12px] max-md:w-[88px]! max-md:[--ant-select-height:44px] max-md:[--ant-select-padding-horizontal:12px] sm:w-28 sm:[--ant-select-border-radius:9999px] sm:[--ant-select-height:48px] sm:[--ant-select-padding-horizontal:20px]"
+          />
+        </div>
       </section>
 
       {casesQuery.isError ? (
@@ -90,15 +93,9 @@ export function CasesSquarePage() {
           className="rounded-xl"
         />
       ) : casesQuery.isLoading ? (
-        <section className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {Array.from({ length: PAGE_SIZE }).map((_, index) => (
-            <Skeleton.Node
-              key={index}
-              active
-              className="h-70! w-full! rounded-lg!"
-            />
-          ))}
-        </section>
+        <div className="flex min-h-56 items-center justify-center">
+          <Spin size="large" />
+        </div>
       ) : cases.length > 0 ? (
         <>
           <section className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">

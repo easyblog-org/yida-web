@@ -150,7 +150,7 @@ export function PublicCaseCommentsSection({ appId }: { appId: string }) {
     }
 
     return (
-      <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
+      <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3 max-md:rounded-none">
         <div className="mb-2 text-xs text-slate-500">
           回复 {replyingTo.author?.nickname ?? '该用户'}
         </div>
@@ -206,7 +206,7 @@ export function PublicCaseCommentsSection({ appId }: { appId: string }) {
               重试
             </Button>
           }
-          className="rounded-lg"
+          className="rounded-lg max-md:rounded-none"
         />
       )
     }
@@ -228,7 +228,7 @@ export function PublicCaseCommentsSection({ appId }: { appId: string }) {
 
     if (rootComments.length === 0) {
       return (
-        <div className="flex h-full min-h-[320px] items-center justify-center rounded-lg border border-slate-100 bg-slate-50/60">
+        <div className="flex h-full min-h-[320px] items-center justify-center rounded-lg border border-slate-100 bg-slate-50/60 max-md:rounded-none">
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description="暂无评论"
