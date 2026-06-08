@@ -44,6 +44,12 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      '/cdn-proxy': {
+        target: 'http://tfuvj8a9x.hn-bkt.clouddn.com',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path: string) => path.replace(/^\/cdn-proxy/, ''),
+      },
     },
   },
 })
