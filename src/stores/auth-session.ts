@@ -22,6 +22,12 @@ export const useAuthSessionStore = create<AuthSessionState>()(
     }),
     {
       name: 'auth-session',
+      // 从 localStorage 恢复时重新处理 CDN URL，确保持久化数据中的地址也是代理路径
+      onRehydrateStorage: () => (state) => {
+        if (state?.user) {
+          state.user = proxyCdnUrls(state.user)
+        }
+      },
     },
   ),
 )
