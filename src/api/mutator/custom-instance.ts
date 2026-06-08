@@ -10,15 +10,16 @@ interface ApiResponse<T = unknown> {
   data?: T
 }
 
-const CDN_ORIGIN = 'http://tfuvj8a9x.hn-bkt.clouddn.com'
+/** 匹配七牛云 CDN 的 HTTP 地址（任意子域名），统一替换为 /cdn-proxy 代理路径 */
+const CDN_PATTERN = /^http:\/\/[a-z0-9]+\.hn-bkt\.clouddn\.com/
 
 /** 递归转换响应数据中的 HTTP CDN URL 为 /cdn-proxy 代理路径
  * 生产环境通过 Vercel rewrite 代理到 HTTP CDN，避免 HTTPS 页面的 Mixed Content 问题
  * 仅在数据发生变更时才创建新对象，避免不必要的对象拷贝 */
 export function proxyCdnUrls<T>(data: T): T {
   if (typeof data === 'string') {
-    if (data.startsWith(CDN_ORIGIN)) {
-      return data.replace(CDN_ORIGIN, '/cdn-proxy') as T
+    if (CDN_PATTERN.test(data)) {
+      return data.replace(CDN_PATTERN, '/cdn-proxy') as T
     }
     return data
   }
