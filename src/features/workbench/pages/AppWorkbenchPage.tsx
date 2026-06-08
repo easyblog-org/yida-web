@@ -109,11 +109,11 @@ export function AppWorkbenchPage() {
         </div>
 
         {/* 移动端：Tab 切换布局 */}
-        <div className="flex h-full min-h-0 flex-col md:hidden">
+        <div className="relative h-full md:hidden">
           <Tabs
             activeKey={activeTab}
             onChange={(key) => setActiveTab(key as 'chat' | 'preview')}
-            className="flex! min-h-0! flex-col! [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav]:shrink-0 [&_.ant-tabs-nav]:px-3 [&_.ant-tabs-tab]:px-4! [&_.ant-tabs-tab]:py-2.5! [&_.ant-tabs-content-holder]:flex! [&_.ant-tabs-content-holder]:min-h-0! [&_.ant-tabs-content-holder]:flex-1! [&_.ant-tabs-content]:h-full! [&_.ant-tabs-tabpane]:h-full!"
+            className="absolute! inset-0! flex! flex-col! [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav]:shrink-0 [&_.ant-tabs-nav]:px-3 [&_.ant-tabs-tab]:px-4! [&_.ant-tabs-tab]:py-2.5! [&_.ant-tabs-content-holder]:absolute! [&_.ant-tabs-content-holder]:inset-0! [&_.ant-tabs-content-holder]:top-[46px]! [&_.ant-tabs-content]:h-full! [&_.ant-tabs-tabpane]:h-full!"
             items={[
               {
                 key: 'chat',

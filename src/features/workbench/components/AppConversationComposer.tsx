@@ -170,15 +170,18 @@ export function AppConversationComposer({
         classNames={{
           content: 'items-start!',
           input:
-            'min-h-10! bg-transparent! px-1! py-0! text-[15px]! leading-[1.75]! text-slate-800! placeholder:text-slate-400! placeholder:font-light!',
-          footer: 'mt-2.5!',
+            'bg-transparent! px-1! py-0! text-[15px]! leading-[1.75]! text-slate-800! placeholder:text-slate-400! placeholder:font-light!',
+          footer: 'mt-2!',
+        }}
+        styles={{
+          input: { height: 100 },
         }}
         suffix={false}
         footer={
           <div className="flex min-w-0 items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-1.5">
               <Tooltip title={visualEditTooltipTitle}>
-                <span className="inline-flex">
+                <span className="inline-flex max-md:hidden">
                   <Button
                     htmlType="button"
                     disabled={!isVisualEditMode && !canEnableVisualEdit}
