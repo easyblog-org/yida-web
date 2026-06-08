@@ -10,8 +10,8 @@ interface ApiResponse<T = unknown> {
   data?: T
 }
 
-/** 匹配七牛云 CDN 的 HTTP 地址（任意子域名），统一替换为 /cdn-proxy 代理路径 */
-const CDN_PATTERN = /^http:\/\/[a-z0-9]+\.hn-bkt\.clouddn\.com/
+/** 匹配七牛云 CDN 地址（HTTP 或 HTTPS，任意子域名），统一替换为 /cdn-proxy 代理路径 */
+const CDN_PATTERN = /^https?:\/\/[a-z0-9]+\.hn-bkt\.clouddn\.com/
 
 /** 递归转换响应数据中的 HTTP CDN URL 为 /cdn-proxy 代理路径
  * 生产环境通过 Vercel rewrite 代理到 HTTP CDN，避免 HTTPS 页面的 Mixed Content 问题
