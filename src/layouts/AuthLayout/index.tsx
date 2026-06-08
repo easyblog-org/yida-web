@@ -96,7 +96,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
 
       {/* 底部版权 */}
       <Layout.Footer className="bg-transparent px-6 pb-8 pt-0 text-center text-xs leading-6 text-slate-400 sm:text-sm">
-        <p>易搭低代码应用生成系统</p>
+        <p>易搭 AI 零代码应用生成平台</p>
         <p>
           Designed by{' '}
           <a

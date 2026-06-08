@@ -2,7 +2,7 @@ import { useListCases } from '@/api/generated/endpoints/case'
 import type { AppVO, PageResultAppVO } from '@/api/generated/models'
 import emptyAppCover from '@/assets/empty-app-cover.svg'
 import { Link } from '@tanstack/react-router'
-import { Skeleton } from 'antd'
+import { Spin } from 'antd'
 import { ArrowRight, BookOpen, ChevronDown, LayoutGrid, Star } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
@@ -120,7 +120,6 @@ export function FeaturedCasesSection() {
   const [allCases, setAllCases] = useState<AppVO[]>([])
   const [hasMore, setHasMore] = useState(true)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
-  const [initialLoadingDone, setInitialLoadingDone] = useState(false)
   const [isTransitioning, setIsTransitioning] = useState(false)
 
   // ─ 根据分类标签生成搜索关键词（"全部"时不传 keyword） ──
@@ -186,7 +185,6 @@ export function FeaturedCasesSection() {
     setHasMore(data.hasNext ?? false)
     setIsLoadingMore(false)
     isLoadingMoreRef.current = false
-    setInitialLoadingDone(true)
   }, [query.data, pageNum])
 
   // ── 加载更多（分页） ──
@@ -203,9 +201,8 @@ export function FeaturedCasesSection() {
     setActiveCategory(value)
     setPageNum(1)
     setAllCases([])
-    setHasMore(true)
+    setHasMore(false)
     setIsLoadingMore(false)
-    setInitialLoadingDone(false)
     prevCountRef.current = 0
 
     // 切换筛选时触发过渡动画
@@ -221,32 +218,58 @@ export function FeaturedCasesSection() {
 
   // 数据加载完成后关闭过渡动画（带短暂延迟让淡入效果可见）
   useEffect(() => {
-    if (isTransitioning && initialLoadingDone) {
+    if (isTransitioning && allCases.length > 0) {
       const timer = setTimeout(() => setIsTransitioning(false), 50)
       return () => clearTimeout(timer)
     }
-  }, [isTransitioning, initialLoadingDone])
+  }, [isTransitioning, allCases.length])
 
   // ── 判断卡片是否做淡入动画（所有卡片都做，DOM 复用不会重复播放） ──
   const shouldAnimate = (_index: number) => true
 
-  /* ───────── 骨架屏 ──────── */
-  const renderSkeleton = () => (
-    <div className="grid grid-cols-2 gap-2.5 sm:gap-5 sm:grid-cols-3">
-      {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="overflow-hidden rounded-xl border border-slate-200/70 bg-white">
-          <Skeleton.Node active className="max-md:aspect-[9/16] aspect-video! w-full! rounded-none!" />
-          <div className="space-y-2.5 p-4">
-            <Skeleton.Node active className="h-4! w-3/5! rounded-md!" />
-            <Skeleton.Node active className="h-3.5! w-2/5! rounded-md!" />
-          </div>
-        </div>
-      ))}
+  /* ───────── 加载动画 ──────── */
+  const renderLoading = () => (
+    <div className="flex min-h-[300px] items-center justify-center">
+      <Spin size="large" />
+    </div>
+  )
+
+  /* ───────── 空状态 ──────── */
+  const renderEmpty = (isError: boolean) => (
+    <div className="mt-16 flex flex-col items-center justify-center text-center">
+      <div className="flex size-20 items-center justify-center rounded-2xl bg-slate-100 sm:size-24">
+        <BookOpen className="size-8 text-slate-400 sm:size-10" />
+      </div>
+      {isError ? (
+        <>
+          <p className="mt-6 text-base text-slate-500">案例加载失败</p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="mt-3 rounded-full bg-indigo-50 px-5 py-2 text-sm font-medium text-indigo-600 transition-colors hover:bg-indigo-100"
+          >
+            点击重试
+          </button>
+        </>
+      ) : (
+        <>
+          <p className="mt-6 text-base text-slate-500">
+            暂无该分类下的案例
+          </p>
+          <Link
+            to="/cases"
+            className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-5 py-2 text-sm font-medium text-indigo-600 transition-colors hover:bg-indigo-100"
+          >
+            查看全部案例
+            <ArrowRight className="size-3.5" />
+          </Link>
+        </>
+      )}
     </div>
   )
 
   /* ───────── 初始加载 ───────── */
-  if (query.isLoading && !initialLoadingDone) {
+  if (query.isLoading && allCases.length === 0) {
     return (
       <section
         ref={sectionRef}
@@ -261,7 +284,7 @@ export function FeaturedCasesSection() {
                 <p className="mt-1.5 text-sm text-slate-400">看看这些案例，获得一点创建应用的灵感</p>
               </div>
             </div>
-            <div className="mt-6">{renderSkeleton()}</div>
+            <div className="mt-6">{renderLoading()}</div>
           </div>
         </div>
       </section>
@@ -270,7 +293,6 @@ export function FeaturedCasesSection() {
 
   /* ───────── 错误状态（展示空页面） ───────── */
   if (query.isError && allCases.length === 0) {
-    const isEmpty = true
 
     return (
       <section
@@ -316,41 +338,7 @@ export function FeaturedCasesSection() {
               </div>
             </div>
 
-            {isEmpty && (
-              /* ── 空状态 ─ */
-              <div className={`mt-16 flex flex-col items-center justify-center text-center transition-all duration-300 ${isTransitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'}`}>
-                <div className="relative">
-                  <svg width="120" height="96" viewBox="0 0 120 96" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <rect x="20" y="36" width="80" height="52" rx="4" stroke="#CBD5E1" strokeWidth="2" fill="#F8FAFC" />
-                    <path d="M24 40H56V84H24C21.7909 84 20 82.2091 20 80V44C20 41.7909 21.7909 40 24 40Z" fill="url(#boxGrad)" rx="2" />
-                    <path d="M20 36L60 56L100 36L60 16L20 36Z" stroke="#CBD5E1" strokeWidth="2" fill="#F8FAFC" />
-                    <path d="M20 36L60 56V48L20 28V36Z" fill="#E2E8F0" />
-                    <rect x="68" y="54" width="12" height="10" rx="2" fill="#93C5FD" />
-                    <line x1="68" y1="72" x2="92" y2="72" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" />
-                    <line x1="68" y1="78" x2="84" y2="78" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" />
-                    <circle cx="88" cy="22" r="8" fill="#FEF3C7" />
-                    <path d="M88 18V26M84 22H92" stroke="#D97706" strokeWidth="1.5" strokeLinecap="round" />
-                    <path d="M44 18L45.5 21L49 22L46 24.5L46.5 28L43 26L39.5 28L40 24.5L37 22L40.5 21Z" fill="#EC4899" />
-                    <defs>
-                      <linearGradient id="boxGrad" x1="20" y1="40" x2="56" y2="84" gradientUnits="userSpaceOnUse">
-                        <stop stopColor="#6366F1" />
-                        <stop offset="1" stopColor="#4338CA" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                </div>
-                <p className="mt-6 text-base text-slate-500">
-                  案例加载失败，
-                  <button
-                    type="button"
-                    onClick={() => window.location.reload()}
-                    className="font-medium text-indigo-500 hover:text-indigo-600 hover:underline"
-                  >
-                    点击重试
-                  </button>
-                </p>
-              </div>
-            )}
+            {renderEmpty(true)}
           </div>
         </div>
       </section>
@@ -358,7 +346,6 @@ export function FeaturedCasesSection() {
   }
 
   /* ───────── 正常渲染（含空状态） ───────── */
-  const isEmpty = initialLoadingDone && allCases.length === 0
 
   return (
     <section
@@ -405,182 +392,148 @@ export function FeaturedCasesSection() {
             </div>
           </div>
 
-          {isEmpty ? (
-            /* ── 空状态（保留标签栏可见） ── */
-            <div className="mt-16 flex flex-col items-center justify-center text-center">
-              {/* 盒子插图 */}
-              <div className="relative">
-                <svg width="120" height="96" viewBox="0 0 120 96" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                  {/* 箱子主体 */}
-                  <rect x="20" y="36" width="80" height="52" rx="4" stroke="#CBD5E1" strokeWidth="2" fill="#F8FAFC" />
-                  {/* 箱子左半（蓝色填充） */}
-                  <path d="M24 40H56V84H24C21.7909 84 20 82.2091 20 80V44C20 41.7909 21.7909 40 24 40Z" fill="url(#boxGrad)" rx="2" />
-                  {/* 箱盖左 */}
-                  <path d="M20 36L60 56L100 36L60 16L20 36Z" stroke="#CBD5E1" strokeWidth="2" fill="#F8FAFC" />
-                  {/* 箱盖左半 */}
-                  <path d="M20 36L60 56V48L20 28V36Z" fill="#E2E8F0" />
-                  {/* 小方块装饰 */}
-                  <rect x="68" y="54" width="12" height="10" rx="2" fill="#93C5FD" />
-                  <line x1="68" y1="72" x2="92" y2="72" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" />
-                  <line x1="68" y1="78" x2="84" y2="78" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" />
-                  {/* 十字 / 加号 */}
-                  <circle cx="88" cy="22" r="8" fill="#FEF3C7" />
-                  <path d="M88 18V26M84 22H92" stroke="#D97706" strokeWidth="1.5" strokeLinecap="round" />
-                  {/* 闪亮星 */}
-                  <path d="M44 18L45.5 21L49 22L46 24.5L46.5 28L43 26L39.5 28L40 24.5L37 22L40.5 21Z" fill="#EC4899" />
-                  <defs>
-                    <linearGradient id="boxGrad" x1="20" y1="40" x2="56" y2="84" gradientUnits="userSpaceOnUse">
-                      <stop stopColor="#6366F1" />
-                      <stop offset="1" stopColor="#4338CA" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-              </div>
-              <p className="mt-6 text-base text-slate-500">
-                暂无该分类下的案例，
-                <Link to="/cases" className="font-medium text-indigo-500 hover:text-indigo-600 hover:underline">
-                  查看全部案例
-                </Link>
-              </p>
-            </div>
+          {query.isFetching && allCases.length === 0 ? (
+            renderLoading()
+          ) : allCases.length === 0 ? (
+            renderEmpty(false)
           ) : (
             <>
-              {/* ── 卡片网格（移动端接近铺满，小间距） ── */}
-              <div className={`mt-6 grid grid-cols-2 gap-2.5 sm:gap-5 sm:grid-cols-3 lg:grid-cols-3 transition-all duration-300 ${isTransitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'}`}>
-                {allCases.map((app, index) => {
-                  const title = app.name?.trim() || '未命名应用'
-                  const authorName = app.author?.nickname?.trim() || '未知作者'
-                  const createdAt = formatDate(app.publishedAt ?? app.createdAt)
-                  const coverUrl = app.coverUrl || emptyAppCover
-                  const featured = Boolean(app.featured)
-                  const animate = shouldAnimate(index)
+            {/* ── 卡片网格（移动端接近铺满，小间距） ── */}
+            <div className={`mt-6 grid grid-cols-2 gap-2.5 sm:gap-5 sm:grid-cols-3 lg:grid-cols-3 transition-all duration-300 ${isTransitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'}`}>
+              {allCases.map((app, index) => {
+                const title = app.name?.trim() || '未命名应用'
+                const authorName = app.author?.nickname?.trim() || '未知作者'
+                const createdAt = formatDate(app.publishedAt ?? app.createdAt)
+                const coverUrl = app.coverUrl || emptyAppCover
+                const featured = Boolean(app.featured)
+                const animate = shouldAnimate(index)
 
-                  return (
-                    <article
-                      key={app.id ?? `${title}-${index}`}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => openPublicCaseDetailInNewTab(app.id ?? title)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault()
-                          openPublicCaseDetailInNewTab(app.id ?? title)
-                        }
-                      }}
-                      className={`group relative cursor-pointer overflow-hidden rounded-xl border border-slate-200/70 bg-slate-50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-900/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 ${animate ? 'animate-fade-in' : ''
-                        }`}
-                      style={
-                        animate
-                          ? { animationDelay: `${index * 80}ms` }
-                          : undefined
+                return (
+                  <article
+                    key={app.id ?? `${title}-${index}`}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => openPublicCaseDetailInNewTab(app.id ?? title)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        openPublicCaseDetailInNewTab(app.id ?? title)
                       }
-                    >
-                      {/* ── 封面图（16:9 宽屏比例） ─ */}
-                      <div className="relative max-md:aspect-[9/16] aspect-video overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300">
-                        <img
-                          src={coverUrl}
-                          alt={`${title}封面`}
-                          loading="lazy"
-                          className="size-full object-cover object-top transition-all duration-500 group-hover:scale-105"
-                        />
-                        {/* hover 渐变蒙层 + 底部预览按钮区 */}
-                        <div className="absolute inset-x-0 bottom-0 translate-y-full transition-all duration-300 group-hover:translate-y-0">
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
-                          <div className="relative mx-3 mb-3 mt-auto pt-8">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                openPublicCaseDetailInNewTab(app.id ?? title)
-                              }}
-                              className="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-white py-2.5 text-sm font-medium text-slate-800 shadow-md backdrop-blur-sm transition-colors hover:bg-white/95 active:scale-[0.98]"
-                            >
-                              <BookOpen className="size-4" aria-hidden="true" />
-                              预览
-                            </button>
-                          </div>
-                        </div>
-                        {/* 角标 */}
-                        <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
-                          {featured && (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/90 px-2 py-0.5 text-[11px] font-semibold text-amber-900 shadow-sm backdrop-blur-sm">
-                              <Star className="size-2.5 fill-amber-900 text-amber-900" aria-hidden="true" />
-                              精选
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* ── 卡片信息区 ── */}
-                      <div className="p-4">
-                        <h3 className="line-clamp-1 text-sm font-semibold text-slate-950">
-                          {title}
-                        </h3>
-                        <div className="mt-2 flex items-center gap-2 text-xs text-slate-400">
-                          <img
-                            src={app.author?.avatar || ''}
-                            alt=""
-                            className="size-6 shrink-0 rounded-full bg-slate-200 object-cover"
-                            onError={(e) => {
-                              ; (e.target as HTMLImageElement).style.display = 'none'
-                            }}
-                          />
-                          <span className="truncate text-slate-500">{authorName}</span>
-                          {createdAt && (
-                            <>
-                              <span className="text-slate-300">·</span>
-                              <span className="shrink-0">{createdAt}</span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </article>
-                  )
-                })}
-              </div>
-
-              {/* ── 底部：加载更多 / 没有更多 ── */}
-              <div className="mt-8 flex flex-col items-center justify-center">
-                {hasMore ? (
-                  <button
-                    type="button"
-                    disabled={isLoadingMore}
-                    onClick={handleLoadMore}
-                    className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 bg-white px-6 py-2.5 text-sm font-medium text-slate-600 transition-all duration-200 hover:border-indigo-200 hover:text-indigo-600 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+                    }}
+                    className={`group relative cursor-pointer overflow-hidden rounded-xl border border-slate-200/70 bg-slate-50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-900/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 ${animate ? 'animate-fade-in' : ''
+                      }`}
+                    style={
+                      animate
+                        ? { animationDelay: `${index * 80}ms` }
+                        : undefined
+                    }
                   >
-                    {isLoadingMore || query.isFetching ? (
-                      <>
-                        <svg
-                          className="size-4 animate-spin text-slate-400"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          aria-hidden="true"
-                        >
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          />
-                        </svg>
-                        <span>加载中...</span>
-                      </>
-                    ) : (
-                      <>
-                        <ChevronDown className="size-4" aria-hidden="true" />
-                        <span>加载更多</span>
-                      </>
-                    )}
-                  </button>
-                ) : allCases.length > 0 ? (
-                  <p className="text-sm text-slate-400">
-                    — 已加载全部 {allCases.length} 个案例 —
-                  </p>
-                ) : null}
-              </div>
-            </>
-          )}
+                    {/* ── 封面图（16:9 宽屏比例） ─ */}
+                    <div className="relative max-md:aspect-[9/16] aspect-video overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300">
+                      <img
+                        src={coverUrl}
+                        alt={`${title}封面`}
+                        loading="lazy"
+                        className="size-full object-cover object-top transition-all duration-500 group-hover:scale-105"
+                      />
+                      {/* hover 渐变蒙层 + 底部预览按钮区 */}
+                      <div className="absolute inset-x-0 bottom-0 translate-y-full transition-all duration-300 group-hover:translate-y-0">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
+                        <div className="relative mx-3 mb-3 mt-auto pt-8">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              openPublicCaseDetailInNewTab(app.id ?? title)
+                            }}
+                            className="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-white py-2.5 text-sm font-medium text-slate-800 shadow-md backdrop-blur-sm transition-colors hover:bg-white/95 active:scale-[0.98]"
+                          >
+                            <BookOpen className="size-4" aria-hidden="true" />
+                            预览
+                          </button>
+                        </div>
+                      </div>
+                      {/* 角标 */}
+                      <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+                        {featured && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/90 px-2 py-0.5 text-[11px] font-semibold text-amber-900 shadow-sm backdrop-blur-sm">
+                            <Star className="size-2.5 fill-amber-900 text-amber-900" aria-hidden="true" />
+                            精选
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* ── 卡片信息区 ── */}
+                    <div className="p-4">
+                      <h3 className="line-clamp-1 text-sm font-semibold text-slate-950">
+                        {title}
+                      </h3>
+                      <div className="mt-2 flex items-center gap-2 text-xs text-slate-400">
+                        <img
+                          src={app.author?.avatar || ''}
+                          alt=""
+                          className="size-6 shrink-0 rounded-full bg-slate-200 object-cover"
+                          onError={(e) => {
+                            ; (e.target as HTMLImageElement).style.display = 'none'
+                          }}
+                        />
+                        <span className="truncate text-slate-500">{authorName}</span>
+                        {createdAt && (
+                          <>
+                            <span className="text-slate-300">·</span>
+                            <span className="shrink-0">{createdAt}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
+
+            {/* ── 底部：加载更多 / 没有更多 ── */}
+            <div className="mt-8 flex flex-col items-center justify-center">
+              {hasMore && allCases.length > 0 ? (
+                <button
+                  type="button"
+                  disabled={isLoadingMore}
+                  onClick={handleLoadMore}
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 bg-white px-6 py-2.5 text-sm font-medium text-slate-600 transition-all duration-200 hover:border-indigo-200 hover:text-indigo-600 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isLoadingMore || query.isFetching ? (
+                    <>
+                      <svg
+                        className="size-4 animate-spin text-slate-400"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
+                      </svg>
+                      <span>加载中...</span>
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="size-4" aria-hidden="true" />
+                      <span>加载更多</span>
+                    </>
+                  )}
+                </button>
+              ) : allCases.length > 0 ? (
+                <p className="text-sm text-slate-400">
+                  — 已加载全部 {allCases.length} 个案例 —
+                </p>
+              ) : null}
+            </div>
+          </>
+        )}
         </div>
       </div>
     </section>

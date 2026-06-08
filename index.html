@@ -11,6 +11,11 @@
 <body>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
+  <!-- vConsole for mobile debugging -->
+  <script src="https://unpkg.com/vconsole@3.15.1/dist/vconsole.min.js"></script>
+  <script>
+    try { new VConsole(); } catch (e) { console.warn('vConsole load failed', e); }
+  </script>
 </body>
 
 </html>

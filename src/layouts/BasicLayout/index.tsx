@@ -352,7 +352,7 @@ export default function BasicLayout({ children }: { children: ReactNode }) {
         open={mobileDrawerOpen}
         onClose={() => setMobileDrawerOpen(false)}
         placement="right"
-        width={280}
+        size="280"
         closable={false}
         styles={{ body: { padding: 0 }, header: { padding: 0 } }}
         className="[&_.ant-drawer-body]:!p-0 [&_.ant-drawer-mask]:!bg-black/40"

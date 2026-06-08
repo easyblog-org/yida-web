@@ -10,14 +10,14 @@ interface ApiResponse<T = unknown> {
   data?: T
 }
 
-const CDN_ORIGIN = 'http://tfuvj8a9x.hn-bkt.clouddn.com'
+const CDN_ORIGIN = 'http://fujy8a9x.hn-bkt.clouddn.com'
 
-/** 递归转换响应数据中的 HTTP CDN URL 为代理路径，避免 HTTPS 页面的 Mixed Content 问题
+/** 递归转换响应数据中的 HTTP CDN URL 为 HTTPS，避免 HTTPS 页面的 Mixed Content 问题
  * 仅在数据发生变更时才创建新对象，避免不必要的对象拷贝 */
 export function proxyCdnUrls<T>(data: T): T {
   if (typeof data === 'string') {
     if (data.startsWith(CDN_ORIGIN)) {
-      return data.replace(CDN_ORIGIN, '/cdn-proxy') as T
+      return data.replace(CDN_ORIGIN, 'https://fujy8a9x.hn-bkt.clouddn.com') as T
     }
     return data
   }
