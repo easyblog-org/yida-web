@@ -18,7 +18,7 @@ export function AppAssistantMessageContent({
   const blocks = parseAppConversationTranscript(content)
 
   return (
-    <div className="space-y-2 text-sm leading-6 text-slate-700">
+    <div className="space-y-1.5 text-sm leading-6 sm:space-y-2">
       {blocks.map((block, index) => (
         <AppAssistantTranscriptBlock
           key={`${block.type}-${index}`}
