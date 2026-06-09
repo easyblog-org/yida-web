@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { FeaturedCasesSection } from '../components/FeaturedCasesSection'
+import { HomeGlowBackground } from '../components/HomeGlowBackground'
 import { useTypewriterPlaceholder } from '../hooks/useTypewriterPlaceholder'
 
 const { TextArea } = Input
@@ -76,9 +77,15 @@ function delay(ms: number) {
   return new Promise((resolve) => window.setTimeout(resolve, ms))
 }
 
+const DEBUG_HOME = true
+
+function homeLog(tag: string, msg: string, data?: unknown) {
+  if (!DEBUG_HOME) return
+  console.log(`[HomePage ${performance.now().toFixed(0)}ms] [${tag}] ${msg}`, data ?? '')
+}
+
 export function HomePage() {
   const navigate = useNavigate()
-  const promptPlaceholder = useTypewriterPlaceholder(typewriterPrompts)
   const { message } = App.useApp()
   const accessToken = useAuthSessionStore((state) => state.accessToken)
   const clearSession = useAuthSessionStore((state) => state.clearSession)
@@ -89,6 +96,24 @@ export function HomePage() {
   const [dependencyInstallDotCount, setDependencyInstallDotCount] = useState(1)
   const createAppAbortControllerRef = useRef<AbortController | null>(null)
   const isMountedRef = useRef(true)
+
+  // ── 渲染计数器：追踪重渲染频率 ──
+  const renderCountRef = useRef(0)
+  renderCountRef.current += 1
+  homeLog('render', `#${renderCountRef.current}`, {
+    promptLen: prompt.length,
+    createAppStatus,
+    createAppCurrentStep,
+    dotCount: dependencyInstallDotCount,
+  })
+  // 打字机效果直接操作 DOM placeholder，避免每 70ms 触发 React 重渲染
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+  const handleTextareaRef = (ref: unknown) => {
+    // Ant Design TextArea 的 ref 包含 nativeElement
+    const antRef = ref as { nativeElement?: HTMLTextAreaElement }
+    textareaRef.current = antRef?.nativeElement ?? (ref as HTMLTextAreaElement | null)
+  }
+  useTypewriterPlaceholder(typewriterPrompts, textareaRef)
   const isCreateAppBusy = createAppStatus !== 'idle'
   const createAppCurrentStepIndex = createAppStepIndexMap[createAppCurrentStep]
   const isInstallingDependencies =
@@ -325,22 +350,7 @@ export function HomePage() {
   return (
     <>
       <main className="relative max-h-[calc(100vh-10rem)] overflow-hidden">
-        <div className="pointer-events-none fixed inset-0 -z-10">
-          {/* 基础渐变 */}
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/40 via-white to-sky-50/40" />
-
-          {/* 顶部大光晕（移动端缩小以提升性能） */}
-          <div className="absolute left-1/2 top-0 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-gradient-to-br from-indigo-300/15 via-violet-300/10 to-transparent blur-[150px] sm:h-[1000px] sm:w-[1000px] sm:blur-[200px]" />
-
-          {/* 右上光晕 */}
-          <div className="absolute -right-48 -top-20 h-[500px] w-[500px] rounded-full bg-gradient-to-l from-sky-300/15 via-blue-300/10 to-transparent blur-[120px] sm:h-[800px] sm:w-[800px] sm:blur-[180px]" />
-
-          {/* 左侧中部暖色光晕 */}
-          <div className="absolute -left-48 top-1/4 h-[400px] w-[400px] rounded-full bg-gradient-to-r from-rose-300/10 via-purple-300/10 to-transparent blur-[120px] sm:h-[700px] sm:w-[700px] sm:blur-[180px]" />
-
-          {/* 底部光晕 */}
-          <div className="absolute -bottom-48 left-1/4 h-[400px] w-[500px] rounded-full bg-gradient-to-t from-indigo-400/15 via-violet-400/10 to-transparent blur-[120px] sm:h-[700px] sm:w-[900px] sm:blur-[200px]" />
-        </div>
+        <HomeGlowBackground />
 
         {isCreateAppBusy ? (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4 backdrop-blur-md">
@@ -415,7 +425,7 @@ export function HomePage() {
                 <span className="relative bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">
                   AI
                 </span>
-                <span className="absolute -inset-x-2 -bottom-1 h-3 bg-blue-500/10 blur-xl -z-10 rounded-full" />
+                <span className="absolute -inset-x-2 -bottom-1 h-3 bg-blue-500/5 sm:bg-blue-500/10 max-sm:blur-none blur-xl -z-10 rounded-full" />
               </span>
               即刻生成应用
             </h1>
@@ -427,13 +437,14 @@ export function HomePage() {
 
           <div className="mt-10 w-full max-w-3xl">
             <div className="group relative">
-              <div className="absolute -inset-1 rounded-[1.75rem] bg-gradient-to-r from-blue-500/20 via-violet-500/20 to-purple-500/20 opacity-0 blur-lg transition-opacity duration-500 group-focus-within:opacity-100" />
+              <div className="absolute -inset-1 rounded-[1.75rem] bg-gradient-to-r from-blue-500/20 via-violet-500/20 to-purple-500/20 opacity-0 max-sm:blur-none blur-lg transition-opacity duration-500 group-focus-within:opacity-100" />
 
               <div className="relative overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-[0_8px_32px_-8px_rgba(0,0,0,0.06),0_2px_8px_-2px_rgba(0,0,0,0.04)] transition-all duration-300 group-focus-within:border-indigo-300/50 group-focus-within:shadow-[0_8px_32px_-8px_rgba(99,102,241,0.1),0_2px_8px_-2px_rgba(0,0,0,0.04)]">
                 <div className="relative z-10 px-5 py-4 sm:px-6 sm:py-5">
                   <label htmlFor="home-app-prompt" className="sr-only">应用需求</label>
                   <TextArea
                     id="home-app-prompt"
+                    ref={handleTextareaRef as React.Ref<any>}
                     variant="borderless"
                     autoSize={{ minRows: 3, maxRows: 8 }}
                     maxLength={4000}
@@ -448,7 +459,6 @@ export function HomePage() {
                         }
                       }
                     }}
-                    placeholder={promptPlaceholder}
                     className="max-h-56 min-h-28 resize-none px-0! pt-1! text-[15px]! leading-[1.85]! text-slate-800! placeholder:text-slate-400! sm:text-base!"
                   />
 

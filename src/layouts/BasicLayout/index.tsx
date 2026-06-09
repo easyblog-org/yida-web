@@ -6,7 +6,7 @@ import { queryClient } from '@/libs/query-client'
 import { useAuthSessionStore } from '@/stores/auth-session'
 import { useLocation, useNavigate } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
-import { App, Button, Divider, Drawer, Dropdown, Layout, Menu } from 'antd'
+import { App, Button, Dropdown, Layout, Menu } from 'antd'
 import type { MenuProps } from 'antd'
 import {
   Bookmark,
@@ -22,12 +22,21 @@ import {
   User,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { GithubOutlined } from '@ant-design/icons'
+
+import { SlideDrawer } from '@/components/SlideDrawer'
 
 /**
  * 基础的上中下布局
  */
+const DEBUG_DRAWER = true
+
+function drawerLog(tag: string, msg: string, data?: unknown) {
+  if (!DEBUG_DRAWER) return
+  console.log(`[BasicLayout-Drawer ${performance.now().toFixed(0)}ms] [${tag}] ${msg}`, data ?? '')
+}
+
 export default function BasicLayout({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
   const location = useLocation()
@@ -39,6 +48,40 @@ export default function BasicLayout({ children }: { children: ReactNode }) {
   const userDisplayName = user?.nickname?.trim() || '未设置'
   const userDisplayInitial = user?.nickname?.trim().slice(0, 1).toUpperCase()
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
+
+  // ── 追踪汉堡按钮点击到抽屉打开的完整链路 ──
+  const handleDrawerOpen = useCallback(() => {
+    const t0 = performance.now()
+    drawerLog('CLICK', '用户点击汉堡按钮', { pathname: location.pathname })
+
+    // 检测主线程是否有长任务阻塞
+    const beforeSetState = performance.now()
+    setMobileDrawerOpen(true)
+    const afterSetState = performance.now()
+
+    drawerLog('SETSTATE', `setMobileDrawerOpen(true) 耗时 ${(afterSetState - beforeSetState).toFixed(1)}ms`, {
+      fromClick: (afterSetState - t0).toFixed(1) + 'ms',
+    })
+
+    // 用 rAF 检测下一帧是否及时
+    requestAnimationFrame(() => {
+      const dt = (performance.now() - t0).toFixed(1)
+      drawerLog('RAF1', `第一帧 rAF 触发，距点击 ${dt}ms`)
+      if (parseFloat(dt) > 100) {
+        drawerLog('WARN', '⚠️ 第一帧延迟超过 100ms！可能存在主线程阻塞')
+      }
+    })
+    requestAnimationFrame(() => {
+      const dt = (performance.now() - t0).toFixed(1)
+      drawerLog('RAF2', `第二帧 rAF 触发，距点击 ${dt}ms`)
+    })
+
+    // 100ms 后检查是否已经渲染
+    setTimeout(() => {
+      const dt = (performance.now() - t0).toFixed(1)
+      drawerLog('CHECK-100ms', `距点击 100ms 状态检查`, { dt })
+    }, 100)
+  }, [location.pathname])
 
   const confirmLogout = () => {
     modal.confirm({
@@ -165,7 +208,7 @@ export default function BasicLayout({ children }: { children: ReactNode }) {
           {/* 移动端汉堡按钮 */}
           <button
             type="button"
-            onClick={() => setMobileDrawerOpen(true)}
+            onClick={handleDrawerOpen}
             className="ml-auto flex size-10 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 md:hidden"
             aria-label="打开菜单"
           >
@@ -348,164 +391,159 @@ export default function BasicLayout({ children }: { children: ReactNode }) {
       </Layout.Footer>
 
       {/* 移动端侧边抽屉 */}
-      <Drawer
+      <SlideDrawer
         open={mobileDrawerOpen}
         onClose={() => setMobileDrawerOpen(false)}
         placement="right"
-        size="280"
-        closable={false}
-        styles={{ body: { padding: 0 }, header: { padding: 0 } }}
-        className="[&_.ant-drawer-body]:!p-0 [&_.ant-drawer-mask]:!bg-black/40"
+        width={280}
+        className="md:hidden"
       >
-        <div className="flex h-full flex-col">
-          {/* 关闭按钮 */}
-          <div className="flex justify-end p-4 pb-0">
-            <button
-              type="button"
-              onClick={() => setMobileDrawerOpen(false)}
-              className="flex size-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
-              aria-label="关闭菜单"
-            >
-              <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
+        {/* 关闭按钮 */}
+        <div className="flex justify-end p-4 pb-0">
+          <button
+            type="button"
+            onClick={() => setMobileDrawerOpen(false)}
+            className="flex size-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+            aria-label="关闭菜单"
+          >
+            <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
 
-          {isAuthenticated ? (
-            <>
-              {/* 用户信息区 */}
-              <div className="px-6 pt-4 pb-6">
-                <div className="flex items-center gap-3">
-                  <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-100 text-lg font-medium text-slate-600">
-                    {user?.avatar ? (
-                      <img src={user.avatar} alt={userDisplayName} className="size-full object-cover" />
-                    ) : (
-                      userDisplayInitial
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="truncate text-base font-semibold text-slate-900">{userDisplayName}</p>
-                    <p className="mt-0.5 truncate text-xs text-slate-400">
-                      ID: {user?.id ?? '—'}
-                    </p>
-                  </div>
+        {isAuthenticated ? (
+          <>
+            {/* 用户信息区 */}
+            <div className="px-6 pt-4 pb-6">
+              <div className="flex items-center gap-3">
+                <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-100 text-lg font-medium text-slate-600">
+                  {user?.avatar ? (
+                    <img src={user.avatar} alt={userDisplayName} className="size-full object-cover" />
+                  ) : (
+                    userDisplayInitial
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-base font-semibold text-slate-900">{userDisplayName}</p>
+                  <p className="mt-0.5 truncate text-xs text-slate-400">
+                    ID: {user?.id ?? '—'}
+                  </p>
                 </div>
               </div>
+            </div>
 
-              {/* 快捷入口 */}
-              <div className="grid grid-cols-2 gap-3 px-6 pb-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileDrawerOpen(false)
-                    void navigate({ to: '/' })
-                  }}
-                  className="flex flex-col items-center gap-1.5 rounded-xl bg-slate-50 py-4 text-sm font-medium text-slate-700 transition-colors active:bg-slate-100"
-                >
-                  <Home className="size-5 text-slate-500" />
-                  首页
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileDrawerOpen(false)
-                    void navigate({ to: '/profile' })
-                  }}
-                  className="flex flex-col items-center gap-1.5 rounded-xl bg-slate-50 py-4 text-sm font-medium text-slate-700 transition-colors active:bg-slate-100"
-                >
-                  <LayoutGrid className="size-5 text-slate-500" />
-                  个人中心
-                </button>
-              </div>
-
-              <Divider className="!my-2" />
-
-              {/* 功能菜单列表 */}
-              <nav className="flex-1 overflow-y-auto px-2 py-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileDrawerOpen(false)
-                    void navigate({ to: '/cases' })
-                  }}
-                  className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-700 transition-colors active:bg-slate-100"
-                >
-                  <LayoutGrid className="size-4.5 text-slate-400" />
-                  案例广场
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileDrawerOpen(false)
-                    void navigate({ to: '/profile' })
-                  }}
-                  className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-700 transition-colors active:bg-slate-100"
-                >
-                  <FolderKanban className="size-4.5 text-slate-400" />
-                  我的作品
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileDrawerOpen(false)
-                    void navigate({ to: '/profile' })
-                  }}
-                  className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-700 transition-colors active:bg-slate-100"
-                >
-                  <Bookmark className="size-4.5 text-slate-400" />
-                  我的收藏
-                </button>
-                {isAdmin && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMobileDrawerOpen(false)
-                      void navigate({ to: '/admin' })
-                    }}
-                    className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-700 transition-colors active:bg-slate-100"
-                  >
-                    <ShieldCheck className="size-4.5 text-slate-400" />
-                    后台系统
-                  </button>
-                )}
-              </nav>
-
-              {/* 底部退出登录 */}
-              <div className="border-t border-slate-100 p-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileDrawerOpen(false)
-                    confirmLogout()
-                  }}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-medium text-red-500 transition-colors active:bg-red-50"
-                >
-                  <LogOut className="size-4.5" />
-                  退出登录
-                </button>
-              </div>
-            </>
-          ) : (
-            /* 未登录状态 */
-            <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6">
-              <p className="text-sm text-slate-500">登录后享受更多功能</p>
-              <Button
-                type="primary"
-                block
-                size="large"
+            {/* 快捷入口 */}
+            <div className="grid grid-cols-2 gap-3 px-6 pb-4">
+              <button
+                type="button"
                 onClick={() => {
                   setMobileDrawerOpen(false)
-                  void navigate({ to: '/auth/login' })
+                  void navigate({ to: '/' })
                 }}
-                className="rounded-xl! font-medium"
+                className="flex flex-col items-center gap-1.5 rounded-xl bg-slate-50 py-4 text-sm font-medium text-slate-700 transition-colors active:bg-slate-100"
               >
-                登录 / 注册
-              </Button>
+                <Home className="size-5 text-slate-500" />
+                首页
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileDrawerOpen(false)
+                  void navigate({ to: '/profile' })
+                }}
+                className="flex flex-col items-center gap-1.5 rounded-xl bg-slate-50 py-4 text-sm font-medium text-slate-700 transition-colors active:bg-slate-100"
+              >
+                <LayoutGrid className="size-5 text-slate-500" />
+                个人中心
+              </button>
             </div>
-          )}
-        </div>
-      </Drawer>
+
+            {/* 分割线 */}
+            <div className="mx-6 my-2 h-px bg-slate-200/60" />
+
+            {/* 功能菜单列表 */}
+            <nav className="flex-1 overflow-y-auto px-2 py-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileDrawerOpen(false)
+                  void navigate({ to: '/cases' })
+                }}
+                className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-700 transition-colors active:bg-slate-100"
+              >
+                <LayoutGrid className="size-4.5 text-slate-400" />
+                案例广场
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileDrawerOpen(false)
+                  void navigate({ to: '/profile' })
+                }}
+                className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-700 transition-colors active:bg-slate-100"
+              >
+                <FolderKanban className="size-4.5 text-slate-400" />
+                我的作品
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileDrawerOpen(false)
+                  void navigate({ to: '/profile' })
+                }}
+                className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-700 transition-colors active:bg-slate-100"
+              >
+                <Bookmark className="size-4.5 text-slate-400" />
+                我的收藏
+              </button>
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileDrawerOpen(false)
+                    void navigate({ to: '/admin' })
+                  }}
+                  className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-slate-700 transition-colors active:bg-slate-100"
+                >
+                  <ShieldCheck className="size-4.5 text-slate-400" />
+                  后台系统
+                </button>
+              )}
+            </nav>
+
+            {/* 底部退出登录 */}
+            <div className="border-t border-slate-100 p-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileDrawerOpen(false)
+                  confirmLogout()
+                }}
+                className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-medium text-red-500 transition-colors active:bg-red-50"
+              >
+                <LogOut className="size-4.5" />
+                退出登录
+              </button>
+            </div>
+          </>
+        ) : (
+          /* 未登录状态 */
+          <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6">
+            <p className="text-sm text-slate-500">登录后享受更多功能</p>
+            <button
+              type="button"
+              onClick={() => {
+                setMobileDrawerOpen(false)
+                void navigate({ to: '/auth/login' })
+              }}
+              className="w-full rounded-xl bg-blue-500 py-3 text-sm font-medium text-white transition-colors active:bg-blue-600"
+            >
+              登录 / 注册
+            </button>
+          </div>
+        )}
+      </SlideDrawer>
     </Layout>
   )
 }

@@ -1,61 +1,82 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
-export function useTypewriterPlaceholder(prompts: readonly string[]) {
-  const [promptPlaceholder, setPromptPlaceholder] = useState('')
+/**
+ * 打字机占位符 Hook（性能优化版）
+ *
+ * 原版问题：每 70ms 调用 setState 触发 React 重渲染，
+ * 导致包含此 Hook 的大组件（如 HomePage）高频重渲染，
+ * 进而阻塞用户交互（如侧边栏打开）的响应。
+ *
+ * 优化方案：使用 ref + 直接操作 DOM input/textarea 的 placeholder 属性，
+ * 完全绕过 React 渲染管线，零重渲染开销。
+ *
+ * @param prompts 循环展示的提示文案数组
+ * @param inputRef 目标 Input/TextArea 的 ref
+ */
+export function useTypewriterPlaceholder(
+  prompts: readonly string[],
+  inputRef: React.RefObject<HTMLTextAreaElement | HTMLInputElement | null>,
+) {
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const stateRef = useRef({
+    promptIndex: 0,
+    charIndex: 0,
+    isDeleting: false,
+  })
 
   useEffect(() => {
-    if (prompts.length === 0) {
-      setPromptPlaceholder('')
-      return
-    }
+    if (prompts.length === 0 || !inputRef.current) return
 
-    // 尊重系统“减少动态效果”设置，避免继续播放打字动画。
+    const el = inputRef.current
+    const state = stateRef.current
+
+    // 尊重系统"减少动态效果"设置
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
     if (prefersReducedMotion) {
-      setPromptPlaceholder(prompts[0])
+      el.placeholder = prompts[0]
       return
     }
-
-    let promptIndex = 0
-    let charIndex = 0
-    let isDeleting = false
-    let timeoutId: ReturnType<typeof window.setTimeout>
 
     const tick = () => {
-      const prompt = prompts[promptIndex]
-      const nextText = prompt.slice(0, charIndex)
+      if (!el) return
 
-      setPromptPlaceholder(nextText)
+      const prompt = prompts[state.promptIndex]
+      const nextText = prompt.slice(0, state.charIndex)
 
-      // 按“输入 -> 停顿 -> 删除 -> 切换下一条”的节奏循环展示占位文案。
-      if (!isDeleting && charIndex < prompt.length) {
-        charIndex += 1
-        timeoutId = window.setTimeout(tick, 70)
+      // 直接操作 DOM placeholder，不触发 React 重渲染
+      el.placeholder = nextText
+
+      if (!state.isDeleting && state.charIndex < prompt.length) {
+        state.charIndex += 1
+        timerRef.current = setTimeout(tick, 70)
         return
       }
 
-      if (!isDeleting && charIndex === prompt.length) {
-        isDeleting = true
-        timeoutId = window.setTimeout(tick, 1600)
+      if (!state.isDeleting && state.charIndex === prompt.length) {
+        state.isDeleting = true
+        timerRef.current = setTimeout(tick, 1600)
         return
       }
 
-      if (isDeleting && charIndex > 0) {
-        charIndex -= 1
-        timeoutId = window.setTimeout(tick, 28)
+      if (state.isDeleting && state.charIndex > 0) {
+        state.charIndex -= 1
+        timerRef.current = setTimeout(tick, 28)
         return
       }
 
-      isDeleting = false
-      promptIndex = (promptIndex + 1) % prompts.length
-      timeoutId = window.setTimeout(tick, 360)
+      // 切换下一条
+      state.isDeleting = false
+      state.promptIndex = (state.promptIndex + 1) % prompts.length
+      timerRef.current = setTimeout(tick, 360)
     }
 
-    timeoutId = window.setTimeout(tick, 300)
+    timerRef.current = setTimeout(tick, 300)
 
-    return () => window.clearTimeout(timeoutId)
-  }, [prompts])
-
-  return promptPlaceholder
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
+        timerRef.current = null
+      }
+    }
+  }, [prompts, inputRef])
 }
