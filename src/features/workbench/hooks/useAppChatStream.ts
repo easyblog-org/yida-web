@@ -249,6 +249,37 @@ export function useAppChatStream(appId?: string) {
             return
           }
 
+          // SSE 流可能已正常输出全部内容，但连接关闭时抛出异常（如服务端主动断开）。
+          // 此时已有内容，不应标记为失败，按正常完成处理。
+          if (assistantContent.trim()) {
+            setStreamingMessages((messages) =>
+              messages.map((item) =>
+                item.id === assistantMessageId
+                  ? { ...item, status: 'completed' }
+                  : item,
+              ),
+            )
+
+            if (isMountedRef.current) {
+              requestPreviewRefresh()
+            }
+
+            try {
+              await queryClient.refetchQueries({
+                queryKey: getAppConversationMessagesQueryKey(appId),
+                type: 'active',
+              })
+
+              if (isMountedRef.current) {
+                setStreamingMessages([])
+              }
+            } catch {
+              message.warning('消息已生成，但刷新消息列表失败，请稍后手动刷新。')
+            }
+
+            return
+          }
+
           latestFailedPromptRef.current = nextPrompt
           setStreamingMessages((messages) =>
             messages.map((item) =>

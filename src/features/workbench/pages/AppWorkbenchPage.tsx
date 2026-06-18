@@ -13,10 +13,26 @@ import { useWorkbenchRuntimeStore } from '../stores/useWorkbenchRuntimeStore'
 const APP_FORBIDDEN_CODE = 40300
 const APP_NOT_FOUND_CODE = 40400
 
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < breakpoint)
+
+  useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`)
+
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mql.addEventListener('change', handler)
+
+    return () => mql.removeEventListener('change', handler)
+  }, [breakpoint])
+
+  return isMobile
+}
+
 export function AppWorkbenchPage() {
   const navigate = useNavigate()
   const { appId } = useParams({ from: '/workbench_/$appId' })
   const enterWorkbenchApp = useWorkbenchRuntimeStore((state) => state.enterApp)
+  const isMobile = useIsMobile()
   const [activeTab, setActiveTab] = useState<'chat' | 'preview'>('chat')
   const appQuery = useGetApp<AppVO | undefined, { code?: number; message?: string }>(appId, {
     query: {
@@ -92,8 +108,47 @@ export function AppWorkbenchPage() {
         <AppWorkbenchHeader app={appDetail} />
       </Layout.Header>
       <Layout.Content className="flex min-h-0 flex-1 flex-col overflow-hidden bg-white">
-        {/* 桌面端：Splitter 双栏布局 */}
-        <div className="hidden h-full md:block">
+        {isMobile ? (
+          /* 移动端：Tab 切换布局 */
+          <div className="relative h-full">
+            <Tabs
+              activeKey={activeTab}
+              onChange={(key) => setActiveTab(key as 'chat' | 'preview')}
+              className="absolute! inset-0! flex! flex-col! [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav]:shrink-0 [&_.ant-tabs-nav]:px-3 [&_.ant-tabs-tab]:px-4! [&_.ant-tabs-tab]:py-2.5! [&_.ant-tabs-content-holder]:absolute! [&_.ant-tabs-content-holder]:inset-0! [&_.ant-tabs-content-holder]:top-[46px]! [&_.ant-tabs-content]:h-full! [&_.ant-tabs-tabpane]:h-full!"
+              items={[
+                {
+                  key: 'chat',
+                  label: (
+                    <span className="inline-flex items-center gap-1.5 text-sm font-medium">
+                      <MessageSquare className="size-4" />
+                      对话
+                    </span>
+                  ),
+                  children: (
+                    <div className="h-full overflow-hidden">
+                      <AppConversation app={appDetail} />
+                    </div>
+                  ),
+                },
+                {
+                  key: 'preview',
+                  label: (
+                    <span className="inline-flex items-center gap-1.5 text-sm font-medium">
+                      <MonitorPlay className="size-4" />
+                      预览
+                    </span>
+                  ),
+                  children: (
+                    <div className="h-full overflow-hidden">
+                      <AppWorkspacePanel app={appDetail} />
+                    </div>
+                  ),
+                },
+              ]}
+            />
+          </div>
+        ) : (
+          /* 桌面端：Splitter 双栏布局 */
           <Splitter className="h-full min-h-0 flex-1 overflow-hidden bg-white">
             <Splitter.Panel
               defaultSize={520}
@@ -106,46 +161,7 @@ export function AppWorkbenchPage() {
               <AppWorkspacePanel app={appDetail} />
             </Splitter.Panel>
           </Splitter>
-        </div>
-
-        {/* 移动端：Tab 切换布局 */}
-        <div className="relative h-full md:hidden">
-          <Tabs
-            activeKey={activeTab}
-            onChange={(key) => setActiveTab(key as 'chat' | 'preview')}
-            className="absolute! inset-0! flex! flex-col! [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav]:shrink-0 [&_.ant-tabs-nav]:px-3 [&_.ant-tabs-tab]:px-4! [&_.ant-tabs-tab]:py-2.5! [&_.ant-tabs-content-holder]:absolute! [&_.ant-tabs-content-holder]:inset-0! [&_.ant-tabs-content-holder]:top-[46px]! [&_.ant-tabs-content]:h-full! [&_.ant-tabs-tabpane]:h-full!"
-            items={[
-              {
-                key: 'chat',
-                label: (
-                  <span className="inline-flex items-center gap-1.5 text-sm font-medium">
-                    <MessageSquare className="size-4" />
-                    对话
-                  </span>
-                ),
-                children: (
-                  <div className="h-full overflow-hidden">
-                    <AppConversation app={appDetail} />
-                  </div>
-                ),
-              },
-              {
-                key: 'preview',
-                label: (
-                  <span className="inline-flex items-center gap-1.5 text-sm font-medium">
-                    <MonitorPlay className="size-4" />
-                    预览
-                  </span>
-                ),
-                children: (
-                  <div className="h-full overflow-hidden">
-                    <AppWorkspacePanel app={appDetail} />
-                  </div>
-                ),
-              },
-            ]}
-          />
-        </div>
+        )}
       </Layout.Content>
     </Layout>
   )

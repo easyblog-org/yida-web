@@ -15,6 +15,11 @@ export default defineConfig({
     }),
     react({
       babel: {
+        // 仅对项目源码启用 React Compiler，排除 node_modules。
+        // 第三方库（antd、@ant-design/x-markdown 等）已被其作者优化，
+        // React Compiler v1.0 对第三方库的自动 memoization 可能破坏内部状态管理逻辑，
+        // 导致 Maximum update depth exceeded 无限循环。
+        include: [/src/],
         plugins: [['babel-plugin-react-compiler']],
       },
     }),
