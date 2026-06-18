@@ -1,12 +1,19 @@
 import { Think } from '@ant-design/x'
 import { XMarkdown } from '@ant-design/x-markdown'
 import { CheckCircle, CircleDashed, Wrench, XCircle } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import {
   parseAppConversationTranscript,
   type AppConversationTranscriptBlock,
 } from '../utils/appConversationTranscript'
+
+/**
+ * XMarkdown 内部 useStreaming 的 `components = {}` 默认值每次渲染都会创建新对象，
+ * 导致 handleIncompleteMarkdown → processStreaming → useEffect → setOutput 形成无限循环。
+ * 传入稳定的空对象即可避免此问题。
+ */
+const STABLE_XMARKDOWN_COMPONENTS = {}
 
 export function AppAssistantMessageContent({
   content,
@@ -123,6 +130,21 @@ function AppAssistantMarkdown({
   hasNextChunk: boolean
   className?: string
 }) {
+  // Memoize streaming config to prevent XMarkdown re-render every time (React.memo shallow compare).
+  // Without this, the inline object causes useStreaming's `components = {}` default to create a new
+  // object each render, leading to handleIncompleteMarkdown → processStreaming → useEffect → setOutput infinite loop.
+  const streamingConfig = useMemo(
+    () =>
+      hasNextChunk
+        ? {
+          hasNextChunk: true,
+          enableAnimation: true,
+          tail: { component: StreamingTail },
+        }
+        : undefined,
+    [hasNextChunk],
+  )
+
   if (!content) {
     return null
   }
@@ -131,13 +153,10 @@ function AppAssistantMarkdown({
     <XMarkdown
       content={content}
       className={className}
+      components={STABLE_XMARKDOWN_COMPONENTS}
       openLinksInNewTab
       escapeRawHtml
-      streaming={hasNextChunk ? {
-        hasNextChunk: true,
-        enableAnimation: true,
-        tail: { component: StreamingTail },
-      } : undefined}
+      streaming={streamingConfig}
     />
   )
 }

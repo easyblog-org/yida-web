@@ -208,7 +208,7 @@ export function AppConversation({ app }: { app: AppVO }) {
   const isSubmitEnabled = Boolean(app.id && messagesQuery.isSuccess)
   const isVisualEditEnabled = Boolean(app.id && isPreviewReady)
   const displayMessages: AppConversationDisplayMessage[] = [
-    ...messagesQuery.messages.map((message, index) => ({
+    ...(messagesQuery.messages ?? []).map((message, index) => ({
       ...message,
       id: message.id ?? `message-${index}`,
       status: 'completed' as const,
@@ -248,7 +248,7 @@ export function AppConversation({ app }: { app: AppVO }) {
       !appId ||
       !initialPrompt ||
       !messagesQuery.isSuccess ||
-      messagesQuery.messages.length > 0 ||
+      (messagesQuery.messages?.length ?? 0) > 0 ||
       isStreaming ||
       autoInitialChatAppIdsRef.current.has(appId)
     ) {
@@ -268,7 +268,7 @@ export function AppConversation({ app }: { app: AppVO }) {
     app.initPrompt,
     isStreaming,
     messagesQuery.isSuccess,
-    messagesQuery.messages.length,
+    messagesQuery.messages?.length,
     sendMessage,
   ])
 

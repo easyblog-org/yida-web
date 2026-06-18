@@ -36,7 +36,17 @@ export function createLocalAppConversationMessage({
 }
 
 export function isAppChatStreamErrorContent(content: string) {
-  return content.trim().startsWith('【错误】')
+  const trimmed = content.trim()
+
+  if (!trimmed.startsWith('【错误】')) {
+    return false
+  }
+
+  // 仅当去除错误前缀后剩余内容很短时才判定为纯错误。
+  // 后端可能返回以【错误】开头的长文本（含有用信息），不应整体判为失败。
+  const bodyAfterErrorPrefix = trimmed.slice(4).trim()
+
+  return bodyAfterErrorPrefix.length < 50
 }
 
 export function shouldStreamAppConversationMarkdown(
